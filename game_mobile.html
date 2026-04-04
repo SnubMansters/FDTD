@@ -15,11 +15,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-/* prevent double-tap zoom on buttons */
 button,div[onclick]{touch-action:manipulation;}
 html,body{width:100%;height:100%;background:#000;overflow:hidden;overscroll-behavior:none;}
 body{-webkit-user-select:none;user-select:none;}
-/* iOS safe area padding */
 #game{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
 #game{position:relative;width:100%;height:100%;user-select:none;}
 canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;transition:opacity .5s ease;}
@@ -61,7 +59,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 /* MAP */
 /* #s-map allows normal pointer events */
 #map-bar{position:absolute;top:0;left:0;right:0;height:52px;background:rgba(1,6,3,.92);border-bottom:1px solid #0e2018;display:flex;align-items:center;justify-content:space-between;padding:0 1.2rem;pointer-events:all;z-index:1;gap:1rem;}
-.map-back-btn{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:#2a5035;background:none;border:none;cursor:pointer;transition:color .15s;white-space:nowrap;min-height:44px;padding:.4em .2em;}
+.map-back-btn{font-family:'Oswald',sans-serif;font-size:.82rem;font-weight:300;letter-spacing:.22em;text-transform:uppercase;color:#2a5035;background:none;border:none;cursor:pointer;transition:color .15s;white-space:nowrap;min-height:44px;padding:.35em .2em;}
 .map-back-btn:hover{color:#5a9870;}
 .map-bar-center{display:flex;flex-direction:column;align-items:center;flex:1;}
 .map-bar-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#1e4028;letter-spacing:.3em;}
@@ -85,7 +83,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 
 /* SHOOTER */
 #s-shooter{pointer-events:none;}
-#sh-top{position:absolute;top:0;left:0;right:0;height:60px;background:rgba(0,0,0,.88);border-bottom:1px solid #200e08;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;pointer-events:all;z-index:1;}
+#sh-top{position:absolute;top:0;left:0;right:0;height:62px;background:rgba(0,0,0,.88);border-bottom:1px solid #200e08;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;pointer-events:all;z-index:1;}
 #sh-zone-lbl{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#6a4020;letter-spacing:.2em;min-width:150px;}
 #sh-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;max-width:340px;margin:0 1rem;}
 #sh-bar-lbl{font-family:'Special Elite',cursive;font-size:.55rem;color:#3a2810;letter-spacing:.22em;text-transform:uppercase;}
@@ -93,6 +91,11 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 #sh-bar-fill{height:100%;background:#4a9a30;border-radius:2px;transition:width .12s,background .3s;}
 #sh-wave-lbl{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#6a4020;letter-spacing:.2em;min-width:100px;text-align:right;}
 #sh-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:2;}
+#sh-pause-btn{position:absolute;top:10px;left:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.18em;color:#4a3020;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 16px;height:44px;min-width:56px;cursor:pointer;pointer-events:all;transition:color .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:5px;}
+#sh-pause-btn:hover{color:#8a6040;border-color:#4a2810;}
+#sh-retreat-btn{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2vw,1.1rem);letter-spacing:.25em;color:#8a3020;background:rgba(12,4,2,.9);border:1px solid #3a1010;padding:.55em 2em;cursor:pointer;margin-top:1.2rem;pointer-events:all;transition:color .15s,border-color .15s;opacity:0;transition:opacity .4s ease;}
+#sh-retreat-btn.show{opacity:1;}
+#sh-retreat-btn:hover{color:#cc4030;border-color:#6a2020;}
 #sh-msg{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,4.5rem);letter-spacing:.18em;text-align:center;line-height:1.1;opacity:0;transition:opacity .4s ease;text-shadow:0 0 40px currentColor;}
 #sh-msg.show{opacity:1;}
 #sh-sub-msg{font-family:'Special Elite',cursive;font-size:clamp(.7rem,1.5vw,1rem);letter-spacing:.18em;color:#6a5030;text-align:center;margin-top:.6rem;opacity:0;transition:opacity .4s ease;}
@@ -134,17 +137,17 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 .inv-check-label{font-family:'Special Elite',cursive;font-size:.62rem;color:#2a4028;letter-spacing:.1em;display:flex;align-items:center;gap:.35rem;cursor:pointer;}
 .inv-check-label input{accent-color:#3a8040;}
 /* SHOOTER LOADOUT BAR */
-#sh-loadout{position:absolute;bottom:0;left:0;right:0;height:68px;background:rgba(0,0,0,.88);border-top:1px solid #1e0c04;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:all;z-index:1;}
-.sh-wep-slot{background:rgba(12,8,6,.9);border:1px solid #2a1808;padding:0 14px;height:50px;min-width:110px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s,background .12s;gap:6px;}
+#sh-loadout{position:absolute;bottom:0;left:0;right:0;height:70px;background:rgba(0,0,0,.88);border-top:1px solid #1e0c04;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:all;z-index:1;}
+.sh-wep-slot{background:rgba(12,8,6,.9);border:1px solid #2a1808;padding:0 14px;height:52px;min-width:110px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s,background .12s;gap:6px;}
 .sh-wep-slot.active{border-color:#6a3010;background:rgba(22,12,6,.95);}
 .sh-wep-slot:hover{border-color:#4a2010;}
 .sh-wep-key{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:300;letter-spacing:.1em;color:#3a2010;flex-shrink:0;}
 .sh-wep-name{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.12em;color:#8a5020;}
 .sh-wep-slot.active .sh-wep-name{color:#c8a060;}
-#sh-nade-btn{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#6a8020;background:rgba(10,12,4,.9);border:1px solid #2a3010;padding:0 16px;height:50px;cursor:pointer;transition:color .12s,border-color .12s;}
+#sh-nade-btn{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#6a8020;background:rgba(10,12,4,.9);border:1px solid #2a3010;padding:0 16px;height:52px;cursor:pointer;transition:color .12s,border-color .12s;}
 #sh-nade-btn:hover{color:#aac040;border-color:#4a5018;}
 #sh-nade-btn:disabled{opacity:.3;cursor:not-allowed;}
-#sh-ammo-btn{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#5a7888;background:rgba(4,10,14,.9);border:1px solid #1a2e3a;padding:0 16px;height:50px;cursor:pointer;transition:color .12s,border-color .12s;}
+#sh-ammo-btn{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#5a7888;background:rgba(4,10,14,.9);border:1px solid #1a2e3a;padding:0 16px;height:52px;cursor:pointer;transition:color .12s,border-color .12s;}
 #sh-ammo-btn:hover{color:#88b8c8;border-color:#2a5060;}
 #sh-ammo-btn:disabled{opacity:.3;cursor:not-allowed;}
 /* SEARCH SCREEN */
@@ -235,12 +238,13 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
       </div>
       <div id="sh-wave-lbl"></div>
     </div>
-    <div id="sh-overlay"><div id="sh-msg"></div><div id="sh-sub-msg"></div></div>
+    <button id="sh-pause-btn" onclick="SH_togglePause()">&#9646;&#9646; PAUSE</button>
+    <div id="sh-overlay"><div id="sh-msg"></div><div id="sh-sub-msg"></div><button id="sh-retreat-btn" onclick="SH_retreat()">&#8592; RETREAT</button></div>
     <div id="sh-loadout">
       <div class="sh-wep-slot active" id="sh-slot0" onclick="SH_switchSlot(0)"><span class="sh-wep-key">[1]</span><span class="sh-wep-name" id="sh-slot0-lbl">PISTOL</span></div>
       <div class="sh-wep-slot" id="sh-slot1" onclick="SH_switchSlot(1)"><span class="sh-wep-key">[2]</span><span class="sh-wep-name" id="sh-slot1-lbl">—</span></div>
       <div style="width:1px;height:28px;background:#2a1808;margin:0 4px;flex-shrink:0;"></div>
-      <button id="sh-reload-btn" onclick="startReload(SH.activeSlot)" style="font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#806820;background:rgba(14,12,4,.9);border:1px solid #3a2e10;padding:0 14px;height:50px;cursor:pointer;">RELOAD</button>
+      <button id="sh-reload-btn" onclick="startReload(SH.activeSlot)" style="font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#806820;background:rgba(14,12,4,.9);border:1px solid #3a2e10;padding:0 14px;height:52px;cursor:pointer;touch-action:manipulation;">RELOAD</button>
       <button id="sh-nade-btn" onclick="SH_throwGrenade()">GRENADE (<span id="sh-nade-cnt">0</span>)</button>
       <div style="width:1px;height:28px;background:#1a2030;margin:0 4px;flex-shrink:0;"></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
@@ -273,6 +277,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
       <div class="map-bar-title">SHOP</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#b89030;letter-spacing:.1em;" id="shop-funds">$0</div>
     </div>
+    <div style="text-align:center;padding:.5rem 0 0;min-height:1.4rem;" id="shop-time-lbl"></div>
     <div class="shop-body" id="shop-grid"></div>
   </div>
   <!-- INVENTORY -->
@@ -311,6 +316,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
       <div class="mstat"><div class="mstat-v" id="stat-s">—</div><div class="mstat-l">Survivors</div></div>
     </div>
   </div>
+  <div id="map-clock" style="display:none;position:absolute;bottom:56px;left:1.2rem;z-index:51;pointer-events:none;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:#1e4028;letter-spacing:.2em;text-shadow:0 0 12px rgba(10,60,20,.4);"></div>
   <div id="alert-lbl">&#11044; Emergency Alert Active</div>
   <div id="build-lbl">v0.1 &mdash; Day Zero Build</div>
 </div>
@@ -347,6 +353,47 @@ const SHOP_ITEMS=[
   {id:'ammobox',     label:'Ammo Boxes (4)',price:310,  desc:'4 ammo boxes. Each holds 16 magazines.',      stack:true},
 ];
 
+// ══ TIME OF DAY ══
+// Returns { isDay, hour, dayFrac, sunAngle, moonAngle, label, skyCol }
+function getTimeOfDay(){
+  const now=new Date();
+  // Game time runs 7x faster than real time — 1 real day = 1 in-game week
+  // Real fractional hours (0-24) → game hours (0-24, cycling every ~3h26m real)
+  const realHour=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+  const hour=(realHour*7)%24; // game hour: 0-24, completes every 3h25m real time
+  const gameDayOfWeek=Math.floor(realHour*7/24)%7; // 0=Mon…6=Sun (cosmetic, future use)
+  const isDay=hour>=7&&hour<19;
+  // dayFrac: 0=sunrise(7am), 1=sunset(7pm) — only valid during day
+  const dayFrac=isDay?(hour-7)/12:0;
+  // nightFrac: 0=dusk(7pm), 1=dawn(7am)
+  const nightFrac=!isDay?(hour>=19?(hour-19)/12:((hour+5)/12)):0;
+  // Sun travels right-side arc: rises bottom-right, peaks top-right, sets bottom-right
+  const sunAngle=isDay?(dayFrac*Math.PI):Math.PI; // 0=horizon right, PI=horizon right (other side)
+  // Moon travels left-side arc
+  const moonAngle=!isDay?(nightFrac*Math.PI):Math.PI;
+  // Sky tint for the map background
+  let skyR,skyG,skyB;
+  if(isDay){
+    if(dayFrac<0.15){skyR=20;skyG=12;skyB=18;} // dawn
+    else if(dayFrac<0.5){skyR=8;skyG=12;skyB=22;} // morning
+    else if(dayFrac<0.85){skyR=6;skyG=10;skyB=18;} // afternoon
+    else{skyR=18;skyG=10;skyB=12;} // dusk
+  } else {
+    skyR=2;skyG=5;skyB=8; // night
+  }
+  const label=isDay
+    ?(dayFrac<0.15?'DAWN':dayFrac<0.5?'MORNING':dayFrac<0.85?'AFTERNOON':'DUSK')
+    :(nightFrac<0.5?'EVENING':'NIGHT');
+  return{isDay,hour,dayFrac,nightFrac,sunAngle,moonAngle,label,skyR,skyG,skyB};
+}
+
+// Day bonuses / night penalties applied at key points:
+//   Kill pay: unaffected (pure skill reward)
+//   Personnel per win: +15% day, -0% night
+//   Shop price: day -0 to -10%  |  night +0 to +20%
+//   Search NOTHING_CHANCE: day 0.14  |  night 0.32
+//   Fight difficulty multiplier: day 1.0  |  night 1.12
+
 // ══ SEARCH TYPES ══
 const SEARCH_TYPES=[
   {id:'school',   label:'School',   icon:'🏫', desc:'Up to $300 and 2 survivors.',
@@ -364,7 +411,7 @@ const SEARCH_TYPES=[
   {id:'base',     label:'Base',     icon:'🏗', desc:'Up to 15 ammo boxes and 2 survivors.',
    rolls:[{w:'ammoBoxes',max:15,chance:.60},{w:'survivors',max:2,chance:.42}]},
 ];
-const NOTHING_CHANCE=0.22; // 22% chance the whole search finds absolutely nothing
+const NOTHING_CHANCE=0.22; // baseline — overridden by time of day in rollSearch
 
 const CITIES=RAW.map(([name,lat,lon,pop])=>{const t=Math.max(0,Math.min(1,Math.log10(pop/3000)/Math.log10(950000/3000)));return{name,lat,lon,pop,t,r:Math.round(255-t*132),g:Math.round(176-t*170),b:Math.round(176-t*170),sz:3+t*12,tier:tierOf(pop),phaseOff:(pop%1000)/1000*Math.PI*2,px:0,py:0};});
 
@@ -531,11 +578,75 @@ function drawOfficeAnim(){
 let hovCity=null;
 function drawMap(ts){
   const ctx=mapX;ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#020508';ctx.fillRect(0,0,W,H);
+  const tod=getTimeOfDay();
+  // Sky tint: blend between dark tactical navy and time-of-day colour
+  const skyBlend=0.35; // how much tod tint shows through
+  const skyFill=`rgb(${Math.round(2+tod.skyR*skyBlend)},${Math.round(5+tod.skyG*skyBlend)},${Math.round(8+tod.skyB*skyBlend)})`;
+  ctx.fillStyle=skyFill;ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='#060a0d';ctx.lineWidth=1;
   for(let x=0;x<W;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
   for(let y=0;y<H;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
   if(!voronoiCells.length)return;
+
+  // Clock update
+  const _ch=Math.floor(tod.hour);
+  const _cm=Math.floor((tod.hour-_ch)*60);
+  const _cs=Math.floor(((tod.hour-_ch)*60-_cm)*60);
+  const _ck=document.getElementById('map-clock');
+  if(_ck)_ck.textContent=String(_ch).padStart(2,'0')+String(_cm).padStart(2,'0')+' HRS';
+
+  // ── SUN (right side arc, day only) ──
+  if(tod.isDay){
+    // Arc: rises from bottom-right horizon at dawn, sets to bottom-right at dusk
+    // Angle 0=bottom, PI/2=top-right peak
+    const sArc=tod.dayFrac*Math.PI; // 0(sunrise) → PI(sunset)
+    const sRadius=H*0.42;
+    const sCx=W*0.88; // right side
+    const sCy=H*0.78; // horizon level
+    const sX=sCx+Math.cos(Math.PI-sArc)*sRadius*0.6;
+    const sY=sCy-Math.abs(Math.sin(sArc))*sRadius;
+    const sSize=Math.max(14,W*.022);
+    const nearHorizon=Math.abs(sArc-0)<0.25||Math.abs(sArc-Math.PI)<0.25;
+    // Atmospheric glow
+    const sGlow=ctx.createRadialGradient(sX,sY,0,sX,sY,sSize*5);
+    const sAlpha=nearHorizon?0.15:0.08;
+    sGlow.addColorStop(0,`rgba(255,200,80,${sAlpha})`);
+    sGlow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=sGlow;ctx.beginPath();ctx.arc(sX,sY,sSize*5,0,Math.PI*2);ctx.fill();
+    // Sun body
+    ctx.fillStyle=nearHorizon?'rgba(255,140,60,.85)':'rgba(255,220,80,.9)';
+    ctx.beginPath();ctx.arc(sX,sY,sSize,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=nearHorizon?'rgba(255,180,100,.55)':'rgba(255,240,140,.5)';
+    ctx.beginPath();ctx.arc(sX,sY,sSize*.55,0,Math.PI*2);ctx.fill();
+    // Time label
+    ctx.font=`${Math.max(9,W*.009)}px 'Special Elite',cursive`;ctx.textAlign='center';
+    ctx.fillStyle='rgba(180,140,40,.5)';
+    ctx.fillText(tod.label,sX,sY+sSize*2.2);
+  }
+
+  // ── MOON (left side arc, night only) ──
+  if(!tod.isDay){
+    const mArc=tod.nightFrac*Math.PI;
+    const mRadius=H*0.42;
+    const mCx=W*0.12;
+    const mCy=H*0.78;
+    const mX=mCx-Math.cos(Math.PI-mArc)*mRadius*0.6;
+    const mY=mCy-Math.abs(Math.sin(mArc))*mRadius;
+    const mSize=Math.max(11,W*.018);
+    const nearHorizonM=Math.abs(mArc-0)<0.25||Math.abs(mArc-Math.PI)<0.25;
+    // Moon glow
+    const mGlow=ctx.createRadialGradient(mX,mY,0,mX,mY,mSize*4);
+    mGlow.addColorStop(0,'rgba(140,150,200,0.10)');mGlow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=mGlow;ctx.beginPath();ctx.arc(mX,mY,mSize*4,0,Math.PI*2);ctx.fill();
+    // Moon body
+    ctx.fillStyle='rgba(220,225,245,.82)';ctx.beginPath();ctx.arc(mX,mY,mSize,0,Math.PI*2);ctx.fill();
+    // Crescent shadow
+    ctx.fillStyle=skyFill;ctx.beginPath();ctx.arc(mX+mSize*.38,mY-mSize*.08,mSize*.82,0,Math.PI*2);ctx.fill();
+    ctx.font=`${Math.max(9,W*.009)}px 'Special Elite',cursive`;ctx.textAlign='center';
+    ctx.fillStyle='rgba(130,140,190,.45)';
+    ctx.fillText(tod.label,mX,mY+mSize*2.2);
+  }
+
   ctx.fillStyle='#040c06';ohioPath(ctx);ctx.fill();
   const t=ts*.001;
   ctx.save();ohioPath(ctx);ctx.clip();
@@ -649,7 +760,8 @@ function initShooter(zone){
   SH.groundY=H*.74;SH.barricadeX=W*.68;
   SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;
   const mult=zoneDiffMult(zone.name);
-  SH.difficulty=mult*(1+zone.t*2.2);
+  const _tod2=getTimeOfDay();
+  SH.difficulty=mult*(1+zone.t*2.2)*(_tod2.isDay?1.0:1.12); // night: +12% harder
   const tierWaves=[3,4,5,6,7,8];
   const tidx=['ISOLATED','SCATTERED','INFESTED','OVERRUN','SIEGE','LOST CITY'].indexOf(zone.tier.label);
   SH.totalWaves=tierWaves[Math.max(0,Math.min(5,tidx))];
@@ -859,7 +971,7 @@ function updateBullets(dt){
         const _dmg=Math.max(1,Math.round(b.dmg*_dmgMult));
         z.hp-=_dmg;spawnBlood(b.x,b.y,b.vx,b.vy);if(z.hp<=0){z.state='dying';
           // ── reward: currency per kill ──────────────────────────────────────
-          SH.currency+=Math.round(40+Math.random()*60); // <- $40-$100 per kill
+          SH.currency+=Math.round(30+Math.random()*44); // <- $30-$74 per kill (-26%)
           // ── end reward: currency per kill ─────────────────────────────────
           const _fe=document.getElementById('sh-funds-v');if(_fe)_fe.textContent='$'+SH.currency.toLocaleString();
         }hit=true;break;
@@ -1198,7 +1310,17 @@ function updateShooterHUD(){
   document.getElementById('sh-wave-lbl').textContent=`WAVE ${SH.wave} / ${SH.totalWaves}`;
   const msg=document.getElementById('sh-msg'),sub=document.getElementById('sh-sub-msg');
   updateWeaponHUD();updateGrenadeHUD();
-  if(SH.paused){msg.textContent='PAUSED';msg.style.color='#506878';msg.className='sh-msg show';sub.textContent='Press ESC to resume';sub.className='sh-sub-msg show';return;}
+  const _pb=document.getElementById('sh-pause-btn');
+  const _rb=document.getElementById('sh-retreat-btn');
+  if(SH.paused){
+    msg.textContent='PAUSED';msg.style.color='#506878';msg.className='sh-msg show';
+    sub.textContent='ESC or tap ❚❚ to resume';sub.className='sh-sub-msg show';
+    if(_rb)_rb.className='sh-retreat-btn show';
+    if(_pb){_pb.innerHTML='&#9654; RESUME';_pb.style.color='#4a8040';_pb.style.borderColor='#1a4020';}
+    return;
+  }
+  if(_rb)_rb.className='sh-retreat-btn';
+  if(_pb){_pb.innerHTML='&#9646;&#9646; PAUSE';_pb.style.color='';_pb.style.borderColor='';}
   if(SH.phase==='intro'){msg.textContent='PREPARE';msg.style.color='#8a6820';msg.className='sh-msg show';sub.textContent='Defend the barricade. Do not let them through.';sub.className='sh-sub-msg show';}
   else if(SH.phase==='between'){const secs=Math.max(0,Math.ceil(SH.phaseTimer/1000));msg.textContent='WAVE CLEARED';msg.style.color='#4a9020';msg.className='sh-msg show';sub.textContent=`Barricade rebuilt. Wave ${SH.wave+1} incoming in ${secs}s`;sub.className='sh-sub-msg show';}
   else if(SH.phase==='win'){const _wSave=loadSave();const _wP=(_wSave.zones&&_wSave.zones[SH.zone.name]&&_wSave.zones[SH.zone.name].personnel)||0;msg.textContent='ZONE SECURED';msg.style.color='#38a040';msg.className='sh-msg show';sub.textContent=SH.zone.name+' — +1200 personnel ('+_wP.toLocaleString()+' total)';sub.className='sh-sub-msg show';}
@@ -1219,7 +1341,8 @@ function endShooter(won){
 
     // Personnel: flat +500 per win, stacked onto whatever the zone currently holds.
     // zoneMax scales 1,000–10,000 with zone population (t=0..1).
-    const PERSONNEL_PER_WIN = 1200; // <- personnel awarded per successful defence
+    const _tod=getTimeOfDay();
+    const PERSONNEL_PER_WIN = Math.round(1200 * (_tod.isDay ? 1.15 : 1.0)); // <- day:+15%
     const zoneMax        = Math.round(1000 + SH.zone.t * 9000); // <- zone capacity ceiling (1k–10k)
     const prevPersonnel  = (existing.status === 'cleared') ? (existing.personnel || 0) : 0;
     const newPersonnel   = Math.min(zoneMax, prevPersonnel + PERSONNEL_PER_WIN);
@@ -1259,30 +1382,55 @@ function endShooter(won){
 }
 
 // ══ SHOP + INVENTORY ══
+function getShopPriceMod(){
+  const tod=getTimeOfDay();
+  if(tod.isDay){
+    // 0-10% discount — varies through the day
+    const pct=Math.sin(tod.dayFrac*Math.PI); // peaks at noon
+    return 1-pct*0.10;
+  } else {
+    // 0-20% markup — peaks at midnight
+    const n=tod.nightFrac<0.5?tod.nightFrac*2:(2-tod.nightFrac*2); // 0->1->0 through night
+    return 1+n*0.20;
+  }
+}
 function renderShop(){
   const s=loadSave();const funds=s.funds||0;
   document.getElementById('shop-funds').textContent='$'+funds.toLocaleString();
   const inv=getInventory();
+  const priceMod=getShopPriceMod();
+  const tod=getTimeOfDay();
+  const priceLabel=priceMod<0.995
+    ?`<span style="color:#4a9040;font-size:.5rem;letter-spacing:.08em;">▼ ${Math.round((1-priceMod)*100)}% DAY DISCOUNT</span>`
+    :priceMod>1.005
+    ?`<span style="color:#9a3020;font-size:.5rem;letter-spacing:.08em;">▲ ${Math.round((priceMod-1)*100)}% NIGHT MARKUP</span>`
+    :'';
   const grid=document.getElementById('shop-grid');
+  // Insert time label at top
+  document.getElementById('shop-time-lbl').innerHTML=priceLabel||`<span style="color:#2a4028;font-size:.5rem;letter-spacing:.08em;">${tod.label} — standard pricing</span>`;
   grid.innerHTML=SHOP_ITEMS.map(item=>{
+    const modPrice=Math.round(item.price*priceMod);
     const owned=!item.stack&&inv.ownedWeapons.includes(item.id);
     const survivors=s.survivors||0;
     const cantBuySurvivor=item.id==='survivor'&&survivors>=10;
     const cantBuyGrenade=item.id==='grenade'&&(inv.grenades||0)>=7;
-    const disabled=owned||cantBuySurvivor||cantBuyGrenade||funds<item.price;
-    const btnText=owned?'OWNED':cantBuySurvivor?'MAX (10)':cantBuyGrenade?'MAX (7)':funds<item.price?'NEED $'+(item.price-funds).toLocaleString():'BUY — $'+item.price.toLocaleString();
+    const disabled=owned||cantBuySurvivor||cantBuyGrenade||funds<modPrice;
+    const priceDisplay=modPrice!==item.price
+      ?`<span style="text-decoration:line-through;opacity:.4;">$${item.price.toLocaleString()}</span> $${modPrice.toLocaleString()}`
+      :`$${item.price.toLocaleString()}`;
+    const btnText=owned?'OWNED':cantBuySurvivor?'MAX (10)':cantBuyGrenade?'MAX (7)':funds<modPrice?'NEED $'+(modPrice-funds).toLocaleString():`BUY — $${modPrice.toLocaleString()}`;
     return `<div class="shop-card">
       <div class="shop-card-name">${item.label}</div>
-      <div class="shop-card-price">$${item.price.toLocaleString()}</div>
+      <div class="shop-card-price">${priceDisplay}</div>
       <div class="shop-card-desc">${item.desc}</div>
-      <button class="shop-buy-btn" onclick="buyItem('${item.id}')" ${disabled?'disabled':''}>${btnText}</button>
+      <button class="shop-buy-btn" onclick="buyItem('${item.id}',${modPrice})" ${disabled?'disabled':''}>${btnText}</button>
     </div>`;
   }).join('');
 }
-function buyItem(id){
+function buyItem(id,modPrice){
   const s=loadSave();if(!s.funds||s.funds<0)return;
-  const item=SHOP_ITEMS.find(i=>i.id===id);if(!item||s.funds<item.price)return;
-  s.funds-=item.price;
+  const item=SHOP_ITEMS.find(i=>i.id===id);const finalPrice=modPrice||item.price;if(!item||s.funds<finalPrice)return;
+  s.funds-=finalPrice;
   const inv=s.inventory||{ownedWeapons:['pistol'],grenades:1,equipped:['pistol',null],deploySurvivors:0};
   if(id==='grenade'){inv.grenades=Math.min(7,(inv.grenades||0)+1);}
   else if(id==='survivor'){s.survivors=Math.min(10,(s.survivors||0)+1);}
@@ -1398,6 +1546,19 @@ function updateAmmoHUD(){
   if(ab)ab.disabled=(inv.ammoBoxes||0)<=0;
   if(mc)mc.textContent=SH.magazines;
 }
+function SH_togglePause(){
+  if(SH.phase==='win'||SH.phase==='lose')return;
+  SH.paused=!SH.paused;
+  SH.firing=false;
+  updateShooterHUD();
+}
+function SH_retreat(){
+  // Leave the fight with no penalty — zone keeps current state
+  runPendingSearches();
+  const _cs=loadSave();_cs.funds=(_cs.funds||0)+SH.currency;writeSave(_cs);
+  document.getElementById('b-cont').disabled=false;
+  goTo('map');
+}
 function SH_switchSlot(slot){
   if(!SH.equipped[slot])return;
   SH.activeSlot=slot;updateWeaponHUD();
@@ -1480,7 +1641,9 @@ function awardPersonnelToZones(amount){
 function rollSearch(typeId){
   const t=SEARCH_TYPES.find(x=>x.id===typeId);
   if(!t)return{type:typeId,gains:{},nothing:true};
-  if(Math.random()<NOTHING_CHANCE)return{type:typeId,label:t.label,gains:{},nothing:true};
+  const _searchTod=getTimeOfDay();
+  const _nothingChance=_searchTod.isDay?0.14:0.32; // day: 14% nothing | night: 32% nothing
+  if(Math.random()<_nothingChance)return{type:typeId,label:t.label,gains:{},nothing:true};
   const gains={};
   for(const r of t.rolls){
     if(Math.random()<r.chance){
@@ -1603,6 +1766,7 @@ function commitSearches(){
 function goTo(newState){
   appState=newState;
   ['s-menu','s-mode','s-map','s-shooter','s-shop','s-inv','s-search'].forEach(id=>document.getElementById(id).classList.add('off'));
+  const _shpb=document.getElementById('sh-pause-btn');if(_shpb)_shpb.style.display='none';
   const hideOffice=newState==='map'||newState==='shooter';
   bgC.style.opacity=hideOffice?'0':'1';animC.style.opacity=hideOffice?'0':'1';
   document.getElementById('overlay').style.opacity=hideOffice?'0':'1';
@@ -1610,11 +1774,12 @@ function goTo(newState){
   mapC.style.opacity='0';
   shC.style.opacity='0';shC.style.pointerEvents='none';
   document.getElementById('map-ctrl').style.display='none';
+  document.getElementById('map-clock').style.display='none';
   hovCity=null;
   if(newState==='menu'){document.getElementById('s-menu').classList.remove('off');bgC.style.opacity='1';animC.style.opacity='1';document.getElementById('overlay').style.opacity='1';}
   else if(newState==='mode'){document.getElementById('s-mode').classList.remove('off');bgC.style.opacity='1';animC.style.opacity='1';document.getElementById('overlay').style.opacity='1';}
-  else if(newState==='map'){document.getElementById('s-map').classList.remove('off');document.getElementById('map-ctrl').style.display='flex';bakeProjections();mapC.style.opacity='1';updateMapStats();setTimeout(showSearchNotify,350);}
-  else if(newState==='shooter'){document.getElementById('s-shooter').classList.remove('off');shC.style.opacity='1';shC.style.pointerEvents='all';}
+  else if(newState==='map'){document.getElementById('s-map').classList.remove('off');document.getElementById('map-ctrl').style.display='flex';document.getElementById('map-clock').style.display='block';bakeProjections();mapC.style.opacity='1';updateMapStats();setTimeout(showSearchNotify,350);}
+  else if(newState==='shooter'){document.getElementById('s-shooter').classList.remove('off');shC.style.opacity='1';shC.style.pointerEvents='all';const _spb=document.getElementById('sh-pause-btn');if(_spb)_spb.style.display='flex';}
   else if(newState==='shop'){document.getElementById('s-shop').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderShop();}
   else if(newState==='inventory'){document.getElementById('s-inv').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderInventory();}
   else if(newState==='search'){document.getElementById('s-search').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';srchAlloc={};renderSearchScreen();}
@@ -1650,22 +1815,15 @@ mapHit.addEventListener('pointermove',e=>{e.preventDefault();
   tip.style.left=tx+'px';tip.style.top=ty+'px';tip.style.display='block';
 });
 mapHit.addEventListener('pointerleave',()=>{hovCity=null;tip.style.display='none';mapHit.style.cursor='crosshair';});
-mapHit.addEventListener('pointerup',e=>{
-  if(!hovCity)return;
-  // Only fire on a tap (not a drag)
-  const z=hovCity;tip.style.display='none';initShooter(z);goTo('shooter');
-});
+mapHit.addEventListener('pointerup',()=>{if(!hovCity)return;const z=hovCity;tip.style.display='none';initShooter(z);goTo('shooter');});
 
 // ══ SHOOTER INPUTS ══
-// Shooter: pointer events work for both mouse and touch
 shC.addEventListener('pointermove',e=>{
   e.preventDefault();
-  const t=e.touches?e.touches[0]:e;
-  SH.mouseX=t.clientX;SH.mouseY=t.clientY;
-},{passive:false});
+  SH.mouseX=e.clientX;SH.mouseY=e.clientY;
+});
 shC.addEventListener('pointerdown',e=>{
   e.preventDefault();
-  SH.mouseX=e.clientX;SH.mouseY=e.clientY;
   SH.firing=true;
   const _wid2=SH.equipped[SH.activeSlot]||'pistol';
   const _w2=WEAPONS[_wid2]||WEAPONS.pistol;
@@ -1675,8 +1833,8 @@ shC.addEventListener('pointerdown',e=>{
     if(SH.ammo[SH.activeSlot]<=0)startReload(SH.activeSlot);
     updateWeaponHUD();
   }
-},{passive:false});
-shC.addEventListener('pointerup',e=>{SH.firing=false;});
+});
+shC.addEventListener('pointerup',()=>{SH.firing=false;});
 shC.addEventListener('pointercancel',()=>{SH.firing=false;});
 
 // ══ KEYBOARD SHORTCUTS ══
@@ -1685,13 +1843,7 @@ document.addEventListener('keydown', e => {
   else if(e.key==='2'){if(appState==='shooter')SH_switchSlot(1);}
   else if(e.key==='g'||e.key==='G'){if(appState==='shooter')SH_throwGrenade();}
   // debug
-  else if(e.key==='Escape'&&appState==='shooter'){
-    if(SH.phase==='wave'||SH.phase==='between'||SH.phase==='intro'){
-      SH.paused=!SH.paused;
-      SH.firing=false; // release fire on pause
-      updateShooterHUD();
-    }
-  }
+  else if(e.key==='Escape'&&appState==='shooter'){if(SH.phase==='win'||SH.phase==='lose')return;SH_togglePause();}
   else if((e.key==='r'||e.key==='R')&&appState==='shooter'){startReload(SH.activeSlot);}
   else if(e.key==='['){const _fs=loadSave();_fs.funds=(_fs.funds||0)+40000;writeSave(_fs);if(appState==='map')updateMapStats();}
   else if(e.key===']'){const _gi=getInventory();_gi.grenades=Math.min(99,(_gi.grenades||0)+1);saveInventory(_gi);if(appState==='shooter'){SH.grenades=_gi.grenades;updateGrenadeHUD();}}
@@ -1733,16 +1885,13 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 let rTimer;
-window.addEventListener('resize',()=>{clearTimeout(rTimer);rTimer=setTimeout(()=>{// Prevent context menu on long press (iOS)
-document.addEventListener('contextmenu',e=>e.preventDefault());
+window.addEventListener('resize',()=>{clearTimeout(rTimer);rTimer=setTimeout(()=>{document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 resize();buildBg();initPtcls();if(appState==='map')bakeProjections();if(appState==='shooter'){SH.groundY=H*.74;SH.barricadeX=W*.68;SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;}},150);});
 resize();buildBg();initPtcls();
 requestAnimationFrame(ts=>{lastTs=ts;loop(ts);});
-
-// Register service worker for offline play
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').then(()=>console.log('SW registered')).catch(()=>{});
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
 </body>
