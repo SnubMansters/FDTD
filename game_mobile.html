@@ -91,7 +91,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 #sh-bar-fill{height:100%;background:#4a9a30;border-radius:2px;transition:width .12s,background .3s;}
 #sh-wave-lbl{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#6a4020;letter-spacing:.2em;min-width:100px;text-align:right;}
 #sh-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:2;}
-#sh-pause-btn{position:absolute;top:10px;left:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.18em;color:#4a3020;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 16px;height:44px;min-width:56px;cursor:pointer;pointer-events:all;transition:color .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:5px;}
+#sh-pause-btn{position:absolute;top:10px;left:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.18em;color:#4a3020;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 16px;height:46px;min-width:56px;cursor:pointer;pointer-events:all;transition:color .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:5px;}
 #sh-pause-btn:hover{color:#8a6040;border-color:#4a2810;}
 #sh-retreat-btn{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2vw,1.1rem);letter-spacing:.25em;color:#8a3020;background:rgba(12,4,2,.9);border:1px solid #3a1010;padding:.55em 2em;cursor:pointer;margin-top:1.2rem;pointer-events:all;transition:color .15s,border-color .15s;opacity:0;transition:opacity .4s ease;}
 #sh-retreat-btn.show{opacity:1;}
@@ -344,13 +344,13 @@ const WEAPONS={
   scar:  {label:'SCAR',        dmg:65,   rate:320,  auto:true, recoil:0.055,speed:980,  mag:20, reloadMs:2600},
 };
 const SHOP_ITEMS=[
-  {id:'grenade', label:'Grenade',      price:200,  desc:'Thrown explosive. Max 7 carried.',     stack:true},
-  {id:'sniper',  label:'Sniper Rifle', price:6000, desc:'One-shot kill. Very slow fire rate.',   stack:false},
-  {id:'ak47',    label:'AK-47',        price:3300, desc:'Full-auto. Decent damage, has recoil.', stack:false},
-  {id:'mp5k',    label:'MP5K',         price:1500, desc:'Full-auto. Fast fire, lower damage.',   stack:false},
-  {id:'scar',    label:'SCAR',         price:3000, desc:'Full-auto. Slow fire, high damage.',    stack:false},
-  {id:'survivor',    label:'Survivor',      price:4000, desc:'Recruit a survivor to your roster.',          stack:true},
-  {id:'ammobox',     label:'Ammo Boxes (4)',price:310,  desc:'4 ammo boxes. Each holds 16 magazines.',      stack:true},
+  {id:'grenade', label:'Grenade',      price:330,  desc:'Thrown explosive. Max 7 carried.',     stack:true},
+  {id:'sniper',  label:'Sniper Rifle', price:15000, desc:'One-shot kill. Very slow fire rate.',   stack:false},
+  {id:'ak47',    label:'AK-47',        price:7500, desc:'Full-auto. Decent damage, has recoil.', stack:false},
+  {id:'mp5k',    label:'MP5K',         price:2500, desc:'Full-auto. Fast fire, lower damage.',   stack:false},
+  {id:'scar',    label:'SCAR',         price:5000, desc:'Full-auto. Slow fire, high damage.',    stack:false},
+  {id:'survivor',    label:'Survivor',      price:10000, desc:'Recruit a survivor to your roster.',          stack:true},
+  {id:'ammobox',     label:'Ammo Boxes (4)',price:400,  desc:'4 ammo boxes. Each holds 16 magazines.',      stack:true},
 ];
 
 // ══ TIME OF DAY ══
@@ -835,7 +835,8 @@ function fireBullet(){
   const baseAngle=Math.atan2(SH.mouseY-gy,SH.mouseX-gx);
   const spread=(Math.random()-.5)*w.recoil*2;
   const angle=baseAngle+spread;
-  SH.bullets.push({x:gx,y:gy,vx:Math.cos(angle)*w.speed,vy:Math.sin(angle)*w.speed,dmg:w.dmg});
+  const _pierce=wid==='sniper'?2:0; // sniper pierces up to 3 zombies (2 extra)
+  SH.bullets.push({x:gx,y:gy,vx:Math.cos(angle)*w.speed,vy:Math.sin(angle)*w.speed,dmg:w.dmg,pierce:_pierce});
   SH.flashTimer=110;SH.muzzleAngle=angle;
   SH.sparks.push({x:gx+10,y:gy-3,vx:58+Math.random()*35,vy:-(48+Math.random()*28),life:1,maxLife:720,col:'rgba(188,142,32,',sz:2.5,type:'shell',rot:Math.random()*6.28,rotV:(Math.random()-.5)*11});
 }
@@ -960,24 +961,28 @@ function updateBullets(dt){
   for(let i=SH.bullets.length-1;i>=0;i--){
     const b=SH.bullets[i];b.x+=b.vx*dt/1000;b.y+=b.vy*dt/1000;
     if(b.x>W||b.x<-20||b.y<-20||b.y>H+20){SH.bullets.splice(i,1);continue;}
-    let hit=false;
+    // Sniper rounds pierce up to 3 zombies; all others stop on first hit
+    const pierce=b.pierce||0;
+    let hitCount=0;
     for(const z of SH.zombies){
       if(z.state==='dying'||z.state==='dead')continue;
       if(b.x>z.x-z.sz*22&&b.x<z.x+z.sz*18&&b.y>z.y-z.sz*82&&b.y<z.y+4){
         // Hit location multiplier — head/neck:100%  torso:55%  legs:25%
         let _dmgMult=1.0;
-        if(b.y>z.y-z.sz*52)_dmgMult=0.55;  // below neck → torso
-        if(b.y>z.y-z.sz*22)_dmgMult=0.25;  // below waist → legs
+        if(b.y>z.y-z.sz*52)_dmgMult=0.55;
+        if(b.y>z.y-z.sz*22)_dmgMult=0.25;
         const _dmg=Math.max(1,Math.round(b.dmg*_dmgMult));
         z.hp-=_dmg;spawnBlood(b.x,b.y,b.vx,b.vy);if(z.hp<=0){z.state='dying';
           // ── reward: currency per kill ──────────────────────────────────────
           SH.currency+=Math.round(30+Math.random()*44); // <- $30-$74 per kill (-26%)
           // ── end reward: currency per kill ─────────────────────────────────
           const _fe=document.getElementById('sh-funds-v');if(_fe)_fe.textContent='$'+SH.currency.toLocaleString();
-        }hit=true;break;
+        }
+        hitCount++;
+        if(hitCount>=pierce+1)break; // non-pierce: stop at 1; sniper: stop at 3
       }
     }
-    if(hit)SH.bullets.splice(i,1);
+    if(hitCount>0&&(pierce===0||hitCount>=pierce+1))SH.bullets.splice(i,1);
   }
 }
 
@@ -1385,13 +1390,13 @@ function endShooter(won){
 function getShopPriceMod(){
   const tod=getTimeOfDay();
   if(tod.isDay){
-    // 0-10% discount — varies through the day
-    const pct=Math.sin(tod.dayFrac*Math.PI); // peaks at noon
-    return 1-pct*0.10;
+    // Up to 3% discount at noon — subtle, never drastic
+    const pct=Math.sin(tod.dayFrac*Math.PI);
+    return +(1-pct*0.03).toFixed(4);
   } else {
-    // 0-20% markup — peaks at midnight
-    const n=tod.nightFrac<0.5?tod.nightFrac*2:(2-tod.nightFrac*2); // 0->1->0 through night
-    return 1+n*0.20;
+    // Up to 8% markup at midnight
+    const n=tod.nightFrac<0.5?tod.nightFrac*2:(2-tod.nightFrac*2);
+    return +(1+n*0.08).toFixed(4);
   }
 }
 function renderShop(){
@@ -1818,10 +1823,7 @@ mapHit.addEventListener('pointerleave',()=>{hovCity=null;tip.style.display='none
 mapHit.addEventListener('pointerup',()=>{if(!hovCity)return;const z=hovCity;tip.style.display='none';initShooter(z);goTo('shooter');});
 
 // ══ SHOOTER INPUTS ══
-shC.addEventListener('pointermove',e=>{
-  e.preventDefault();
-  SH.mouseX=e.clientX;SH.mouseY=e.clientY;
-});
+shC.addEventListener('pointermove',e=>{e.preventDefault();SH.mouseX=e.clientX;SH.mouseY=e.clientY;},{passive:false});
 shC.addEventListener('pointerdown',e=>{
   e.preventDefault();
   SH.firing=true;
@@ -1890,9 +1892,7 @@ document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefaul
 resize();buildBg();initPtcls();if(appState==='map')bakeProjections();if(appState==='shooter'){SH.groundY=H*.74;SH.barricadeX=W*.68;SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;}},150);});
 resize();buildBg();initPtcls();
 requestAnimationFrame(ts=>{lastTs=ts;loop(ts);});
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
