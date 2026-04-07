@@ -93,8 +93,8 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 #sh-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:2;}
 #sh-pause-btn{position:absolute;top:10px;left:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.18em;color:#4a3020;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 16px;height:46px;min-width:56px;cursor:pointer;pointer-events:all;transition:color .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:5px;}
 #sh-pause-btn:hover{color:#8a6040;border-color:#4a2810;}
-#sh-retreat-btn{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2vw,1.1rem);letter-spacing:.25em;color:#8a3020;background:rgba(12,4,2,.9);border:1px solid #3a1010;padding:.55em 2em;cursor:pointer;margin-top:1.2rem;pointer-events:all;transition:color .15s,border-color .15s;opacity:0;transition:opacity .4s ease;}
-#sh-retreat-btn.show{opacity:1;}
+#sh-retreat-btn{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2vw,1.1rem);letter-spacing:.25em;color:#8a3020;background:rgba(12,4,2,.9);border:1px solid #3a1010;padding:.55em 2em;cursor:pointer;margin-top:1.2rem;pointer-events:none;opacity:0;transition:opacity .4s ease;}
+#sh-retreat-btn.show{opacity:1;pointer-events:all;}
 #sh-retreat-btn:hover{color:#cc4030;border-color:#6a2020;}
 #sh-msg{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,6vw,4.5rem);letter-spacing:.18em;text-align:center;line-height:1.1;opacity:0;transition:opacity .4s ease;text-shadow:0 0 40px currentColor;}
 #sh-msg.show{opacity:1;}
@@ -207,7 +207,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 
   <div id="s-map" class="screen off">
     <div id="map-bar">
-      <!-- visual chrome only — controls are in #map-ctrl outside #s-map -->
+      <!-- visual chrome only - controls are in #map-ctrl outside #s-map -->
     </div>
     <div id="map-hit" style="position:absolute;top:52px;left:0;right:0;bottom:48px;z-index:0;cursor:crosshair;"></div>
     <div id="map-tip">
@@ -242,7 +242,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     <div id="sh-overlay"><div id="sh-msg"></div><div id="sh-sub-msg"></div><button id="sh-retreat-btn" onclick="SH_retreat()">&#8592; RETREAT</button></div>
     <div id="sh-loadout">
       <div class="sh-wep-slot active" id="sh-slot0" onclick="SH_switchSlot(0)"><span class="sh-wep-key">[1]</span><span class="sh-wep-name" id="sh-slot0-lbl">PISTOL</span></div>
-      <div class="sh-wep-slot" id="sh-slot1" onclick="SH_switchSlot(1)"><span class="sh-wep-key">[2]</span><span class="sh-wep-name" id="sh-slot1-lbl">—</span></div>
+      <div class="sh-wep-slot" id="sh-slot1" onclick="SH_switchSlot(1)"><span class="sh-wep-key">[2]</span><span class="sh-wep-name" id="sh-slot1-lbl">-</span></div>
       <div style="width:1px;height:28px;background:#2a1808;margin:0 4px;flex-shrink:0;"></div>
       <button id="sh-reload-btn" onclick="startReload(SH.activeSlot)" style="font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#806820;background:rgba(14,12,4,.9);border:1px solid #3a2e10;padding:0 14px;height:52px;cursor:pointer;touch-action:manipulation;">RELOAD</button>
       <button id="sh-nade-btn" onclick="SH_throwGrenade()">GRENADE (<span id="sh-nade-cnt">0</span>)</button>
@@ -259,7 +259,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     <div class="srch-hdr">
       <button class="map-back-btn" id="b-search-back">&#8592; Back</button>
       <div class="map-bar-title">SEARCH</div>
-      <div style="font-family:'Special Elite',cursive;font-size:.6rem;color:#2a4028;letter-spacing:.12em;" id="srch-slots-lbl">— zones owned</div>
+      <div style="font-family:'Special Elite',cursive;font-size:.6rem;color:#2a4028;letter-spacing:.12em;" id="srch-slots-lbl">- zones owned</div>
     </div>
     <div class="srch-body">
       <div class="srch-info" id="srch-info"></div>
@@ -289,16 +289,16 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     </div>
     <div class="inv-body" id="inv-body"></div>
   </div>
-  <!-- SEARCH NOTIFICATION MODAL — z-index:70, shown after fight -->
+  <!-- SEARCH NOTIFICATION MODAL - z-index:70, shown after fight -->
   <div id="srch-notify" style="display:none;position:absolute;inset:0;z-index:70;background:rgba(0,0,0,.78);align-items:center;justify-content:center;pointer-events:all;">
     <div id="srch-notify-box">
       <div class="sn-title">Search Report</div>
       <div class="sn-subtitle">Results from the last operation</div>
       <div id="srch-notify-content"></div>
-      <button class="sn-ok" onclick="dismissSearchNotify()">— OKAY —</button>
+      <button class="sn-ok" onclick="dismissSearchNotify()">- OKAY -</button>
     </div>
   </div>
-  <!-- MAP CONTROLS — standalone z-index:50, outside any screen div -->
+  <!-- MAP CONTROLS - standalone z-index:50, outside any screen div -->
   <div id="map-ctrl" style="display:none;position:absolute;top:0;left:0;right:0;height:52px;background:rgba(1,6,3,.95);border-bottom:1px solid #0e2018;z-index:50;pointer-events:all;flex-shrink:0;align-items:center;justify-content:space-between;padding:0 1.2rem;gap:1rem;">
     <button class="map-back-btn" id="b-map-back" style="pointer-events:all;">&#8592; Back</button>
     <div style="display:flex;gap:5px;">
@@ -308,12 +308,12 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     </div>
     <div class="map-bar-center">
       <div class="map-bar-title">Select Starting Zone</div>
-      <div class="map-bar-sub">Ohio — Outbreak Year 1</div>
+      <div class="map-bar-sub">Ohio - Outbreak Year 1</div>
     </div>
     <div id="map-stats" style="display:flex;gap:1.4rem;align-items:center;flex-shrink:0;">
-      <div class="mstat"><div class="mstat-v" id="stat-c" style="color:#b89030;">$—</div><div class="mstat-l">Funds</div></div>
-      <div class="mstat"><div class="mstat-v" id="stat-p">—</div><div class="mstat-l">Personnel</div></div>
-      <div class="mstat"><div class="mstat-v" id="stat-s">—</div><div class="mstat-l">Survivors</div></div>
+      <div class="mstat"><div class="mstat-v" id="stat-c" style="color:#b89030;">$-</div><div class="mstat-l">Funds</div></div>
+      <div class="mstat"><div class="mstat-v" id="stat-p">-</div><div class="mstat-l">Personnel</div></div>
+      <div class="mstat"><div class="mstat-v" id="stat-s">-</div><div class="mstat-l">Survivors</div></div>
     </div>
   </div>
   <div id="map-clock" style="display:none;position:absolute;bottom:56px;left:1.2rem;z-index:51;pointer-events:none;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:#1e4028;letter-spacing:.2em;text-shadow:0 0 12px rgba(10,60,20,.4);"></div>
@@ -338,7 +338,7 @@ function tierOf(p){if(p<5000)return{label:"ISOLATED",hex:"#ffb4b4",desc:"Sparse 
 // ══ WEAPONS + SHOP ══
 const WEAPONS={
   pistol:{label:'Pistol',      dmg:25,   rate:190,  auto:false,recoil:0,    speed:940,  mag:12, reloadMs:1400},
-  sniper:{label:'Sniper Rifle',dmg:9999, rate:1800, auto:false,recoil:0,    speed:1400, mag:5,  reloadMs:3200},
+  sniper:{label:'Sniper Rifle',dmg:28, rate:1800, auto:false,recoil:0,    speed:1400, mag:5,  reloadMs:3200},
   ak47:  {label:'AK-47',       dmg:35,   rate:110,  auto:true, recoil:0.07, speed:1000, mag:30, reloadMs:2500},
   mp5k:  {label:'MP5K',        dmg:18,   rate:65,   auto:true, recoil:0.035,speed:1100, mag:30, reloadMs:1800},
   scar:  {label:'SCAR',        dmg:65,   rate:320,  auto:true, recoil:0.055,speed:980,  mag:20, reloadMs:2600},
@@ -357,13 +357,13 @@ const SHOP_ITEMS=[
 // Returns { isDay, hour, dayFrac, sunAngle, moonAngle, label, skyCol }
 function getTimeOfDay(){
   const now=new Date();
-  // Game time runs 7x faster than real time — 1 real day = 1 in-game week
+  // Game time runs 7x faster than real time - 1 real day = 1 in-game week
   // Real fractional hours (0-24) → game hours (0-24, cycling every ~3h26m real)
   const realHour=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
   const hour=(realHour*7)%24; // game hour: 0-24, completes every 3h25m real time
   const gameDayOfWeek=Math.floor(realHour*7/24)%7; // 0=Mon…6=Sun (cosmetic, future use)
   const isDay=hour>=7&&hour<19;
-  // dayFrac: 0=sunrise(7am), 1=sunset(7pm) — only valid during day
+  // dayFrac: 0=sunrise(7am), 1=sunset(7pm) - only valid during day
   const dayFrac=isDay?(hour-7)/12:0;
   // nightFrac: 0=dusk(7pm), 1=dawn(7am)
   const nightFrac=!isDay?(hour>=19?(hour-19)/12:((hour+5)/12)):0;
@@ -411,7 +411,7 @@ const SEARCH_TYPES=[
   {id:'base',     label:'Base',     icon:'🏗', desc:'Up to 15 ammo boxes and 2 survivors.',
    rolls:[{w:'ammoBoxes',max:15,chance:.60},{w:'survivors',max:2,chance:.42}]},
 ];
-const NOTHING_CHANCE=0.22; // baseline — overridden by time of day in rollSearch
+const NOTHING_CHANCE=0.22; // baseline - overridden by time of day in rollSearch
 
 const CITIES=RAW.map(([name,lat,lon,pop])=>{const t=Math.max(0,Math.min(1,Math.log10(pop/3000)/Math.log10(950000/3000)));return{name,lat,lon,pop,t,r:Math.round(255-t*132),g:Math.round(176-t*170),b:Math.round(176-t*170),sz:3+t*12,tier:tierOf(pop),phaseOff:(pop%1000)/1000*Math.PI*2,px:0,py:0};});
 
@@ -435,8 +435,8 @@ function updateMapStats(){
   const s=loadSave();let p=0;
   for(const d of Object.values(s.zones||{})){if(d.status==='cleared')p+=d.personnel||0;}
   const sv=s.survivors||0;
-  document.getElementById('stat-p').textContent=p?p.toLocaleString():'—';
-  document.getElementById('stat-s').textContent=sv>0?String(sv):'—';
+  document.getElementById('stat-p').textContent=p?p.toLocaleString():'-';
+  document.getElementById('stat-s').textContent=sv>0?String(sv):'-';
   document.getElementById('stat-c').textContent='$'+(s.funds||0).toLocaleString();
 }
 
@@ -474,7 +474,7 @@ function tickPersonnelDrain() {
     const cityIdx = CITIES.findIndex(c => c.name === name);
     if (cityIdx < 0) continue;
 
-    // Find the HARDEST adjacent hostile (uncleared) neighbour — drain is based on that one alone
+    // Find the HARDEST adjacent hostile (uncleared) neighbour - drain is based on that one alone
     let hardestT = -1;
     const seen = new Set();
     for (const ni of delaunay.neighbors(cityIdx)) {
@@ -482,18 +482,18 @@ function tickPersonnelDrain() {
       seen.add(ni);
       const nb = CITIES[ni];
       if (!nb) continue;
-      if (clearedNames.has(nb.name)) continue; // cleared neighbour — not a threat
+      if (clearedNames.has(nb.name)) continue; // cleared neighbour - not a threat
       if (nb.t > hardestT) hardestT = nb.t;   // <- track highest-difficulty hostile neighbour
     }
     if (hardestT < 0) {
-      // All voronoi neighbours are cleared — check if the zone touches the Ohio border edge.
+      // All voronoi neighbours are cleared - check if the zone touches the Ohio border edge.
       // If any vertex of its Voronoi cell lies outside Ohio, the wilderness presses in.
       const cell = voronoiCells[cityIdx];
       if (cell && cell.some(([cx, cy]) => !inOhio(cx, cy))) {
         hardestT = 1.0; // map edge treated as max-difficulty hostile zone
       }
     }
-    if (hardestT < 0) continue; // fully surrounded by cleared zones — genuinely safe
+    if (hardestT < 0) continue; // fully surrounded by cleared zones - genuinely safe
 
     const drainPerMin = hostileDrainRate(hardestT); // <- rate driven by hardest hostile border
     if (!drainAccum[name]) drainAccum[name] = 0;
@@ -504,7 +504,7 @@ function tickPersonnelDrain() {
       data.personnel = Math.max(0, (data.personnel || 0) - intDrain);
       changed = true;
       if (data.personnel < INFECT_THRESHOLD) {
-        // Zone fell below minimum — resets to original hostile state
+        // Zone fell below minimum - resets to original hostile state
         zones[name] = { status: 'active', difficulty: 1.0 };
         delete drainAccum[name];
       }
@@ -692,6 +692,7 @@ const SH={
   flashTimer:0,muzzleAngle:0,difficulty:1,
   currency:0,
   paused:false,
+  diffSpike:false,spikeMult:1.0,bonusWave:false,
   // weapons
   activeSlot:0,equipped:['pistol',null],grenades:0,
   ammo:[12,0],reloading:[false,false],reloadTimer:[0,0],
@@ -709,16 +710,16 @@ function initBarricade(){
   // Layout: [relX, relY, w, h, maxHp, row, col_variant]
   // 4 rows × 4-5 boards, staggered brick pattern
   const layout=[
-    // Row 0 — heavy base boards
+    // Row 0 - heavy base boards
     [-44,-24,44,24,50,0,'#2e2010'],[-2,-24,44,24,50,0,'#2a1c0c'],
-    // Row 1 — main plank layer (5 boards, staggered)
+    // Row 1 - main plank layer (5 boards, staggered)
     [-46,-46,22,20,32,1,'#241408'],[-24,-48,22,20,32,1,'#201208'],
     [-2,-46,22,20,32,1,'#281608'],  [20,-48,22,20,32,1,'#221408'],
     [42,-46,22,20,32,1,'#261608'],
-    // Row 2 — second plank layer
+    // Row 2 - second plank layer
     [-44,-68,24,20,25,2,'#1c1006'],[-20,-70,24,20,25,2,'#201208'],
     [4,-68,24,20,25,2,'#1a0e06'],[28,-70,24,20,25,2,'#1e1008'],
-    // Row 3 — top boards
+    // Row 3 - top boards
     [-42,-90,22,20,18,3,'#161008'],[-20,-92,22,20,18,3,'#181008'],
     [2,-90,22,20,18,3,'#141008'],[24,-92,22,20,18,3,'#161008'],
   ];
@@ -761,10 +762,24 @@ function initShooter(zone){
   SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;
   const mult=zoneDiffMult(zone.name);
   const _tod2=getTimeOfDay();
-  SH.difficulty=mult*(1+zone.t*2.2)*(_tod2.isDay?1.0:1.12); // night: +12% harder
+  // ── probably temporary ──────────────────────────────────────────────────────
+  // Rare difficulty spike: ~15% chance - makes the fight 2x-4x harder with a warning
+  const _spikeRoll=Math.random();
+  const _spikeActive=_spikeRoll<0.15;
+  const _spikeMult=_spikeActive?(2+Math.random()*2):1.0; // 2x-4x harder
+  SH.diffSpike=_spikeActive;
+  SH.spikeMult=_spikeMult;
+  // ── end probably temporary ──────────────────────────────────────────────────
+  SH.difficulty=mult*(1+zone.t*2.2)*(_tod2.isDay?1.0:1.12)*_spikeMult;
   const tierWaves=[3,4,5,6,7,8];
   const tidx=['ISOLATED','SCATTERED','INFESTED','OVERRUN','SIEGE','LOST CITY'].indexOf(zone.tier.label);
   SH.totalWaves=tierWaves[Math.max(0,Math.min(5,tidx))];
+  // ── probably temporary ──────────────────────────────────────────────────────
+  // Random bonus "FINAL WAVE" - triggers roughly 1 in every 10 fights
+  const _fc=loadSave().fightCount||0;
+  SH.bonusWave=Math.random()<0.10; // ~10% chance per fight
+  if(SH.bonusWave)SH.totalWaves+=1; // silently add a wave - player finds out when they get there
+  // ── end probably temporary ──────────────────────────────────────────────────
   SH.zombies=[];SH.bullets=[];SH.sparks=[];
   SH.firing=false;SH.shootTimer=0;SH.flashTimer=0;SH.currency=0;SH.paused=false;
   // Load inventory
@@ -802,7 +817,7 @@ function initShooter(zone){
   SH.bgBuildingsFar=[];let bx=0;for(let i=0;i<9;i++){const bw=70+rng()*100,bh=80+rng()*140;SH.bgBuildingsFar.push({x:bx,w:bw,h:bh,wins:Array.from({length:4},()=>({x:8+rng()*(bw-22),y:20+rng()*(bh-38),w:10+rng()*8,h:8+rng()*6,lit:rng()<.35}))});bx+=bw-5;}
   SH.bgBuildings=[];bx=-40;for(let i=0;i<7;i++){const bw=100+rng()*150,bh=130+rng()*220;SH.bgBuildings.push({x:bx,w:bw,h:bh,fire:rng()<.38,wins:Array.from({length:6},()=>({x:8+rng()*(bw-22),y:20+rng()*(bh-38),w:10+rng()*8,h:8+rng()*6,lit:rng()<.3}))});bx+=bw-15;}
   SH.firePos=Array.from({length:4},()=>({x:rng()*W*.55,r:18+rng()*28}));
-  document.getElementById('sh-zone-lbl').textContent=zone.name.toUpperCase()+' — '+zone.tier.label;
+  document.getElementById('sh-zone-lbl').textContent=zone.name.toUpperCase()+' - '+zone.tier.label;
   setupWave(1);
 }
 
@@ -967,7 +982,7 @@ function updateBullets(dt){
     for(const z of SH.zombies){
       if(z.state==='dying'||z.state==='dead')continue;
       if(b.x>z.x-z.sz*22&&b.x<z.x+z.sz*18&&b.y>z.y-z.sz*82&&b.y<z.y+4){
-        // Hit location multiplier — head/neck:100%  torso:55%  legs:25%
+        // Hit location multiplier - head/neck:100%  torso:55%  legs:25%
         let _dmgMult=1.0;
         if(b.y>z.y-z.sz*52)_dmgMult=0.55;
         if(b.y>z.y-z.sz*22)_dmgMult=0.25;
@@ -1108,7 +1123,7 @@ function drawShooter(ts){
   // Helmet
   ctx.fillStyle='#0f0d0b';ctx.beginPath();ctx.arc(px,py-55,9.5,Math.PI,0);ctx.fill();
   ctx.fillRect(px-10,py-59,20,6);
-  // Gun arm — tilt down during reload
+  // Gun arm - tilt down during reload
   const _reloadAngle = SH.reloading[SH.activeSlot]
     ? Math.PI*0.35*(1-SH.reloadTimer[SH.activeSlot]/(WEAPONS[SH.equipped[SH.activeSlot]||'pistol']||WEAPONS.pistol).reloadMs)
     : 0;
@@ -1166,7 +1181,7 @@ function drawShooter(ts){
     ctx.fillStyle=`rgb(${L.s[0]},${L.s[1]},${L.s[2]})`;ctx.fillRect(sx-8,sy-34,16,16);
     ctx.fillStyle=`rgb(${L.k[0]},${L.k[1]},${L.k[2]})`;ctx.beginPath();ctx.arc(sx,sy-40,7,0,Math.PI*2);ctx.fill();
     ctx.fillStyle=`rgb(${L.h[0]},${L.h[1]},${L.h[2]})`;ctx.fillRect(sx-7,sy-47,14,8);
-    // Gun arm — rotates to aim at nearest zombie
+    // Gun arm - rotates to aim at nearest zombie
     const _svAim=sv.aimAngle||(-Math.PI);
     // Arm pivot is roughly shoulder position
     const _armPX=sx+(sv.weapon==='mp5k'?-4:-6);
@@ -1312,7 +1327,10 @@ function updateShooterHUD(){
   const hpR=SH.barHP/SH.barMaxHP;
   const fill=document.getElementById('sh-bar-fill');
   fill.style.width=(hpR*100)+'%';fill.style.background=hpR>.6?'#4a9a30':hpR>.3?'#9a8020':'#9a2020';
-  document.getElementById('sh-wave-lbl').textContent=`WAVE ${SH.wave} / ${SH.totalWaves}`;
+  // ── probably temporary ──────────────────────────────────────────────────────
+  const _isBonusWave=SH.bonusWave&&SH.wave===SH.totalWaves;
+  document.getElementById('sh-wave-lbl').textContent=_isBonusWave?'FINAL WAVE!!':`WAVE ${SH.wave} / ${SH.wave>=SH.totalWaves-1&&SH.bonusWave?SH.totalWaves-1:SH.totalWaves}`;
+  // ── end probably temporary ──────────────────────────────────────────────────
   const msg=document.getElementById('sh-msg'),sub=document.getElementById('sh-sub-msg');
   updateWeaponHUD();updateGrenadeHUD();
   const _pb=document.getElementById('sh-pause-btn');
@@ -1326,15 +1344,33 @@ function updateShooterHUD(){
   }
   if(_rb)_rb.className='sh-retreat-btn';
   if(_pb){_pb.innerHTML='&#9646;&#9646; PAUSE';_pb.style.color='';_pb.style.borderColor='';}
-  if(SH.phase==='intro'){msg.textContent='PREPARE';msg.style.color='#8a6820';msg.className='sh-msg show';sub.textContent='Defend the barricade. Do not let them through.';sub.className='sh-sub-msg show';}
-  else if(SH.phase==='between'){const secs=Math.max(0,Math.ceil(SH.phaseTimer/1000));msg.textContent='WAVE CLEARED';msg.style.color='#4a9020';msg.className='sh-msg show';sub.textContent=`Barricade rebuilt. Wave ${SH.wave+1} incoming in ${secs}s`;sub.className='sh-sub-msg show';}
-  else if(SH.phase==='win'){const _wSave=loadSave();const _wP=(_wSave.zones&&_wSave.zones[SH.zone.name]&&_wSave.zones[SH.zone.name].personnel)||0;msg.textContent='ZONE SECURED';msg.style.color='#38a040';msg.className='sh-msg show';sub.textContent=SH.zone.name+' — +1200 personnel ('+_wP.toLocaleString()+' total)';sub.className='sh-sub-msg show';}
+  if(SH.phase==='intro'){
+    msg.textContent=SH.diffSpike?'DANGER':'PREPARE';
+    msg.style.color=SH.diffSpike?'#cc2020':'#8a6820';
+    msg.className='sh-msg show';
+    sub.textContent=SH.diffSpike
+      ?`HORDE SURGE DETECTED - ${Math.round((SH.spikeMult-1)*100)}% HARDER - GOOD LUCK`
+      :'Defend the barricade. Do not let them through.';
+    sub.className='sh-sub-msg show';
+  }
+  else if(SH.phase==='between'){
+    const secs=Math.max(0,Math.ceil(SH.phaseTimer/1000));
+    // ── probably temporary ──────────────────────────────────────────────────────
+    const _nextIsFinal=SH.bonusWave&&(SH.wave+1===SH.totalWaves);
+    msg.textContent='WAVE CLEARED';msg.style.color='#4a9020';msg.className='sh-msg show';
+    sub.textContent=_nextIsFinal
+      ?`FINAL WAVE incoming in ${secs}s...`
+      :`Barricade rebuilt. Wave ${SH.wave+1} incoming in ${secs}s`;
+    sub.className='sh-sub-msg show';
+    // ── end probably temporary ──────────────────────────────────────────────────
+  }
+  else if(SH.phase==='win'){const _wSave=loadSave();const _wP=(_wSave.zones&&_wSave.zones[SH.zone.name]&&_wSave.zones[SH.zone.name].personnel)||0;msg.textContent='ZONE SECURED';msg.style.color='#38a040';msg.className='sh-msg show';sub.textContent=SH.zone.name+' - +1200 personnel ('+_wP.toLocaleString()+' total)';sub.className='sh-sub-msg show';}
   else if(SH.phase==='lose'){msg.textContent='BARRICADE BREACHED';msg.style.color='#9a2020';msg.className='sh-msg show';sub.textContent=SH.zone.name+' is lost. Difficulty increased.';sub.className='sh-sub-msg show';}
   else{msg.className='sh-msg';sub.className='sh-sub-msg';}
 }
 
 function endShooter(won){
-  // Single atomic load — read once, modify, write once. No stale reads.
+  // Single atomic load - read once, modify, write once. No stale reads.
   const save = loadSave();
   if (!save.zones) save.zones = {};
   const name = SH.zone.name;
@@ -1378,7 +1414,7 @@ function endShooter(won){
     _inv.deploySurvivors=0; save.inventory=_inv;
   }
 
-  // Add currency earned this run — same single save object
+  // Add currency earned this run - same single save object
   save.funds = (save.funds || 0) + SH.currency;
   writeSave(save);
   runPendingSearches();
@@ -1390,7 +1426,7 @@ function endShooter(won){
 function getShopPriceMod(){
   const tod=getTimeOfDay();
   if(tod.isDay){
-    // Up to 3% discount at noon — subtle, never drastic
+    // Up to 3% discount at noon - subtle, never drastic
     const pct=Math.sin(tod.dayFrac*Math.PI);
     return +(1-pct*0.03).toFixed(4);
   } else {
@@ -1412,7 +1448,7 @@ function renderShop(){
     :'';
   const grid=document.getElementById('shop-grid');
   // Insert time label at top
-  document.getElementById('shop-time-lbl').innerHTML=priceLabel||`<span style="color:#2a4028;font-size:.5rem;letter-spacing:.08em;">${tod.label} — standard pricing</span>`;
+  document.getElementById('shop-time-lbl').innerHTML=priceLabel||`<span style="color:#2a4028;font-size:.5rem;letter-spacing:.08em;">${tod.label} - standard pricing</span>`;
   grid.innerHTML=SHOP_ITEMS.map(item=>{
     const modPrice=Math.round(item.price*priceMod);
     const owned=!item.stack&&inv.ownedWeapons.includes(item.id);
@@ -1423,7 +1459,7 @@ function renderShop(){
     const priceDisplay=modPrice!==item.price
       ?`<span style="text-decoration:line-through;opacity:.4;">$${item.price.toLocaleString()}</span> $${modPrice.toLocaleString()}`
       :`$${item.price.toLocaleString()}`;
-    const btnText=owned?'OWNED':cantBuySurvivor?'MAX (10)':cantBuyGrenade?'MAX (7)':funds<modPrice?'NEED $'+(modPrice-funds).toLocaleString():`BUY — $${modPrice.toLocaleString()}`;
+    const btnText=owned?'OWNED':cantBuySurvivor?'MAX (10)':cantBuyGrenade?'MAX (7)':funds<modPrice?'NEED $'+(modPrice-funds).toLocaleString():`BUY - $${modPrice.toLocaleString()}`;
     return `<div class="shop-card">
       <div class="shop-card-name">${item.label}</div>
       <div class="shop-card-price">${priceDisplay}</div>
@@ -1458,13 +1494,13 @@ function renderInventory(){
       <div>
         <div class="inv-slot-label">Slot 1 [1]</div>
         <div class="inv-slot-box ${inv.equipped[0]?'active-slot':''}">
-          <div class="inv-slot-weapon">${inv.equipped[0]?WEAPONS[inv.equipped[0]].label:'— Empty —'}</div>
+          <div class="inv-slot-weapon">${inv.equipped[0]?WEAPONS[inv.equipped[0]].label:'- Empty -'}</div>
         </div>
       </div>
       <div>
         <div class="inv-slot-label">Slot 2 [2]</div>
         <div class="inv-slot-box ${inv.equipped[1]?'active-slot':''}">
-          <div class="inv-slot-weapon">${inv.equipped[1]?WEAPONS[inv.equipped[1]].label:'— Empty —'}</div>
+          <div class="inv-slot-weapon">${inv.equipped[1]?WEAPONS[inv.equipped[1]].label:'- Empty -'}</div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;justify-content:center;">
@@ -1480,7 +1516,7 @@ function renderInventory(){
         <input type="checkbox" ${deploy>=n?'checked':''} ${n>survCount?'disabled':''} onchange="invSetDeploy(${n},this.checked)">
         Deploy ${n}
       </label>`).join('')}
-      <span style="font-family:'Special Elite',cursive;font-size:.58rem;color:#2a3820;letter-spacing:.08em;"> — each carries a pistol</span>
+      <span style="font-family:'Special Elite',cursive;font-size:.58rem;color:#2a3820;letter-spacing:.08em;"> - each carries a pistol</span>
     </div>`:
     `<div style="font-family:'Special Elite',cursive;font-size:.6rem;color:#2a3020;letter-spacing:.1em;margin-top:.8rem;">No survivors yet. Win zones or buy from the shop.</div>`;
 
@@ -1557,10 +1593,11 @@ function SH_togglePause(){
   SH.firing=false;
   updateShooterHUD();
 }
-function SH_retreat(){
-  // Leave the fight with no penalty — zone keeps current state
+function SH_retreat(){if(!SH.paused)return; // only available when paused
+  // Leave the fight with no penalty
+  const _rs=loadSave();_rs.fightCount=(_rs.fightCount||0)+1;writeSave(_rs); // zone keeps current state
   runPendingSearches();
-  const _cs=loadSave();_cs.funds=(_cs.funds||0)+SH.currency;writeSave(_cs);
+  const _cs=loadSave();_cs.funds=(_cs.funds||0)+SH.currency;_cs.fightCount=(_cs.fightCount||0)+1;writeSave(_cs);
   document.getElementById('b-cont').disabled=false;
   goTo('map');
 }
@@ -1591,7 +1628,7 @@ function updateWeaponHUD(){
     const wid=SH.equipped[i];
     const w=wid?(WEAPONS[wid]||null):null;
     if(lbl){
-      if(!wid){lbl.textContent='—';}
+      if(!wid){lbl.textContent='-';}
       else if(SH.reloading[i]){
         const pct=1-SH.reloadTimer[i]/(w.reloadMs||1);
         lbl.textContent=w.label+' [RELOADING '+Math.round(pct*100)+'%]';
@@ -1612,7 +1649,7 @@ function updateGrenadeHUD(){
 }
 
 // ══ SEARCH SYSTEM ══
-let srchAlloc={};  // {typeId: count} — in-progress allocation in the search UI
+let srchAlloc={};  // {typeId: count} - in-progress allocation in the search UI
 
 function countClearedZones(){
   const s=loadSave();return Object.values(s.zones||{}).filter(d=>d.status==='cleared').length;
@@ -1676,7 +1713,7 @@ function runPendingSearches(){
   if(totalSurvivors>0){s.survivors=Math.min(10,(s.survivors||0)+totalSurvivors);}
   if(totalAmmo>0){const inv=s.inventory||{};inv.ammoBoxes=(inv.ammoBoxes||0)+totalAmmo;s.inventory=inv;}
   if(totalPersonnel>0){
-    // Split across cleared zones — do inline (can't call awardPersonnelToZones without writeSave)
+    // Split across cleared zones - do inline (can't call awardPersonnelToZones without writeSave)
     const cleared=Object.entries(s.zones||{}).filter(([,d])=>d.status==='cleared');
     if(cleared.length){
       const each=Math.round(totalPersonnel/cleared.length);
@@ -1697,13 +1734,13 @@ function showSearchNotify(){
   if(!s.pendingSearchResults||!s.pendingSearchResults.length)return;
   const el=document.getElementById('srch-notify-content');
   el.innerHTML=s.pendingSearchResults.map(r=>{
-    if(r.nothing)return`<div class="sn-result nothing">🔍 <b>${r.label}</b> — Nothing found.</div>`;
+    if(r.nothing)return`<div class="sn-result nothing">🔍 <b>${r.label}</b> - Nothing found.</div>`;
     const parts=[];
     if(r.gains.funds)parts.push(`<b>$${r.gains.funds.toLocaleString()}</b>`);
     if(r.gains.ammoBoxes)parts.push(`<b>${r.gains.ammoBoxes} ammo box${r.gains.ammoBoxes>1?'es':''}</b>`);
     if(r.gains.survivors)parts.push(`<b>${r.gains.survivors} survivor${r.gains.survivors>1?'s':''}</b>`);
     if(r.gains.personnel)parts.push(`<b>${r.gains.personnel.toLocaleString()} personnel</b> (split across zones)`);
-    return`<div class="sn-result">🔍 <b>${r.label}</b> — Found: ${parts.join(', ')}.</div>`;
+    return`<div class="sn-result">🔍 <b>${r.label}</b> - Found: ${parts.join(', ')}.</div>`;
   }).join('');
   document.getElementById('srch-notify').style.display='flex';
 }
@@ -1720,7 +1757,7 @@ function renderSearchScreen(){
   const cost=allocated*100;
   document.getElementById('srch-slots-lbl').textContent=slots+' zone'+(slots!==1?'s':'')+' owned';
   document.getElementById('srch-info').innerHTML=
-    `You own <b>${slots}</b> zone${slots!==1?'s':''} — you may run up to <b>${slots}</b> search operation${slots!==1?'s':''} per fight. `+
+    `You own <b>${slots}</b> zone${slots!==1?'s':''} - you may run up to <b>${slots}</b> search operation${slots!==1?'s':''} per fight. `+
     `Each costs <b>100 personnel</b>. You have <b>${personnel.toLocaleString()} personnel</b> total. `+
     `Searches resolve at the end of your next fight.`+
     (()=>{const sq=loadSave().searchQueue||[];return sq.length?` <b style="color:#4a8040">(${sq.length} search${sq.length>1?'es':''} already queued from before)</b>`:''})();
@@ -1808,7 +1845,7 @@ mapHit.addEventListener('pointermove',e=>{e.preventDefault();
   let hint='Click to defend';
   const pEl=document.getElementById('tip-personnel');
   if(st==='cleared'){
-    hint='Zone secured — defend again';
+    hint='Zone secured - defend again';
     const zd=getZoneData(c.name);
     pEl.textContent='Personnel: '+(zd.personnel||0).toLocaleString();
     pEl.style.display='block';
@@ -1868,7 +1905,7 @@ document.getElementById('b-search').addEventListener('click',()=>goTo('search'))
 document.getElementById('b-search-back').addEventListener('click',()=>goTo('map'));
 document.getElementById('b-mode-back').addEventListener('click',()=>goTo('menu'));
 document.getElementById('card-life').addEventListener('click',()=>{
-  // Wipe ALL save data — fresh start
+  // Wipe ALL save data - fresh start
   try{localStorage.removeItem('undeadinc_save');}catch{}
   // Give starting loadout: pistol + 1 grenade
   writeSave({funds:0,survivors:0,zones:{},inventory:{ownedWeapons:['pistol'],grenades:1,equipped:['pistol',null],deploySurvivors:0,ammoBoxes:4}});
