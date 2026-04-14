@@ -91,7 +91,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 #sh-bar-fill{height:100%;background:#4a9a30;border-radius:2px;transition:width .12s,background .3s;}
 #sh-wave-lbl{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#6a4020;letter-spacing:.2em;min-width:100px;text-align:right;}
 #sh-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:2;}
-#sh-pause-btn{position:absolute;top:10px;left:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.18em;color:#4a3020;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 16px;height:46px;min-width:56px;cursor:pointer;pointer-events:all;transition:color .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:5px;}
+#sh-pause-btn{position:absolute;top:10px;left:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:.18em;color:#4a3020;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 12px;height:50px;min-width:60px;cursor:pointer;pointer-events:all;transition:color .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:5px;}
 #sh-pause-btn:hover{color:#8a6040;border-color:#4a2810;}
 #sh-retreat-btn{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2vw,1.1rem);letter-spacing:.25em;color:#8a3020;background:rgba(12,4,2,.9);border:1px solid #3a1010;padding:.55em 2em;cursor:pointer;margin-top:1.2rem;pointer-events:none;opacity:0;transition:opacity .4s ease;}
 #sh-retreat-btn.show{opacity:1;pointer-events:all;}
@@ -150,6 +150,25 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 #sh-ammo-btn{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#5a7888;background:rgba(4,10,14,.9);border:1px solid #1a2e3a;padding:0 16px;height:52px;cursor:pointer;transition:color .12s,border-color .12s;}
 #sh-ammo-btn:hover{color:#88b8c8;border-color:#2a5060;}
 #sh-ammo-btn:disabled{opacity:.3;cursor:not-allowed;}
+/* REPAIR BUTTON */
+#sh-repair-btn{font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.16em;color:#5a7838;background:rgba(6,12,4,.9);border:1px solid #1e3010;padding:.3em 1em;cursor:pointer;transition:color .12s,border-color .12s;display:none;}
+#sh-repair-btn:hover{color:#9aca68;border-color:#3a5820;}
+#sh-repair-btn:disabled{opacity:.3;cursor:not-allowed;}
+/* STATS SCREEN */
+#s-stats{background:rgba(0,0,0,.94);display:flex;flex-direction:column;overflow:hidden;}
+.stats-body{flex:1;overflow-y:auto;padding:1.5rem;max-width:680px;width:100%;margin:0 auto;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem .7rem;border-bottom:1px solid #0a140a;font-family:'Special Elite',cursive;}
+.stat-name{font-size:.65rem;color:#2a3820;letter-spacing:.1em;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:#4a7840;letter-spacing:.1em;}
+/* LOG SCREEN */
+#s-log{background:rgba(0,0,0,.94);display:flex;flex-direction:column;overflow:hidden;}
+.log-hdr{height:52px;background:rgba(1,6,3,.92);border-bottom:1px solid #0e2018;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;flex-shrink:0;}
+.log-body{flex:1;overflow-y:auto;padding:1.2rem 1.5rem;}
+.log-entry{font-family:'Special Elite',cursive;font-size:.65rem;color:#2a3820;letter-spacing:.06em;padding:.4rem .6rem;border-left:2px solid #101e10;margin-bottom:.4rem;line-height:1.5;}
+.log-entry.fight-win{border-left-color:#2a6030;}
+.log-entry.fight-lose{border-left-color:#6a2010;}
+.log-entry.search{border-left-color:#2a3850;}
+.log-entry b{color:#4a6040;}
 /* SEARCH SCREEN */
 #s-search{background:rgba(0,0,0,.94);display:flex;flex-direction:column;overflow:hidden;}
 .srch-hdr{height:52px;background:rgba(1,6,3,.92);border-bottom:1px solid #0e2018;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;flex-shrink:0;}
@@ -239,21 +258,42 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
       <div id="sh-wave-lbl"></div>
     </div>
     <button id="sh-pause-btn" onclick="SH_togglePause()">&#9646;&#9646; PAUSE</button>
+    <button id="sh-mute-btn" onclick="SND.muted=!SND.muted;this.style.opacity=SND.muted?'0.35':'1';" style="position:absolute;top:10px;right:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:.15em;color:#3a2820;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 10px;height:34px;cursor:pointer;pointer-events:all;">SFX</button>
+    <button id="sh-repair-btn" onclick="SH_repairBarricade()">&#9660; REPAIR ($<span id="sh-repair-cost">200</span>)</button>
     <div id="sh-overlay"><div id="sh-msg"></div><div id="sh-sub-msg"></div><button id="sh-retreat-btn" onclick="SH_retreat()">&#8592; RETREAT</button></div>
     <div id="sh-loadout">
       <div class="sh-wep-slot active" id="sh-slot0" onclick="SH_switchSlot(0)"><span class="sh-wep-key">[1]</span><span class="sh-wep-name" id="sh-slot0-lbl">PISTOL</span></div>
       <div class="sh-wep-slot" id="sh-slot1" onclick="SH_switchSlot(1)"><span class="sh-wep-key">[2]</span><span class="sh-wep-name" id="sh-slot1-lbl">-</span></div>
       <div style="width:1px;height:28px;background:#2a1808;margin:0 4px;flex-shrink:0;"></div>
-      <button id="sh-reload-btn" onclick="startReload(SH.activeSlot)" style="font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#806820;background:rgba(14,12,4,.9);border:1px solid #3a2e10;padding:0 14px;height:52px;cursor:pointer;touch-action:manipulation;">RELOAD</button>
+      <button onclick="SH_melee()" style="font-family:Bebas Neue,sans-serif;font-size:.82rem;letter-spacing:.14em;color:#8a6020;background:rgba(14,10,4,.9);border:1px solid #3a2810;padding:0 12px;height:34px;cursor:pointer;">[M] MELEE</button>
       <button id="sh-nade-btn" onclick="SH_throwGrenade()">GRENADE (<span id="sh-nade-cnt">0</span>)</button>
       <div style="width:1px;height:28px;background:#1a2030;margin:0 4px;flex-shrink:0;"></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
         <button id="sh-ammo-btn" onclick="SH_openAmmoBox()">AMMO BOX (<span id="sh-ammo-cnt">0</span>)</button>
+      <button id="sh-kit-btn" onclick="SH_useWeaponKit()" style="font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#7888a8;background:rgba(4,8,14,.9);border:1px solid #1a2040;padding:0 12px;height:34px;cursor:pointer;transition:color .12s,border-color .12s;" title="Clean your weapon - removes wear">CLEAN (<span id="sh-kit-cnt">0</span>)</button>
         <div id="sh-mag-lbl">MAGS: <span id="sh-mag-cnt">1</span></div>
       </div>
     </div>
   </div>
 
+  <!-- STATS -->
+  <div id="s-stats" class="screen off">
+    <div class="log-hdr">
+      <button class="map-back-btn" id="b-stats-back">&#8592; Back</button>
+      <div class="map-bar-title">STATISTICS</div>
+      <div></div>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
+  </div>
+  <!-- LOG -->
+  <div id="s-log" class="screen off">
+    <div class="log-hdr">
+      <button class="map-back-btn" id="b-log-back">&#8592; Back</button>
+      <div class="map-bar-title">OPERATION LOG</div>
+      <div></div>
+    </div>
+    <div class="log-body" id="log-body"><div style="font-family:'Special Elite',cursive;font-size:.65rem;color:#1e2818;letter-spacing:.1em;">No entries yet.</div></div>
+  </div>
   <!-- SEARCH -->
   <div id="s-search" class="screen off">
     <div class="srch-hdr">
@@ -304,7 +344,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     <div style="display:flex;gap:5px;">
       <button class="map-action-btn" id="b-shop" style="pointer-events:all;">SHOP</button>
       <button class="map-action-btn" id="b-inv" style="pointer-events:all;">INVENTORY</button>
-      <button class="map-action-btn" id="b-search" style="pointer-events:all;">SEARCH</button>
+      <button class="map-action-btn" id="b-search" style="pointer-events:all;">SEARCH</button><button class="map-action-btn" id="b-log" style="pointer-events:all;">LOG</button><button class="map-action-btn" id="b-stats" style="pointer-events:all;">STATS</button>
     </div>
     <div class="map-bar-center">
       <div class="map-bar-title">Select Starting Zone</div>
@@ -322,6 +362,57 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 </div>
 <script>
 'use strict';
+// ══ SOUND ENGINE ══════════════════════════════════════════════════════════════
+const SND={ctx:null,muted:false};
+function getSndCtx(){
+  if(!SND.ctx){SND.ctx=new(window.AudioContext||window.webkitAudioContext)();}
+  if(SND.ctx.state==='suspended')SND.ctx.resume();
+  return SND.ctx;
+}
+function playTone(freq,type,vol,attack,decay,pitch2){
+  if(SND.muted)return;
+  try{
+    const ctx=getSndCtx();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.type=type||'sine';o.frequency.setValueAtTime(freq,ctx.currentTime);
+    if(pitch2)o.frequency.exponentialRampToValueAtTime(pitch2,ctx.currentTime+(attack||0.02)+(decay||0.1));
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(vol||0.3,ctx.currentTime+(attack||0.02));
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+(attack||0.02)+(decay||0.1));
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+(attack||0.02)+(decay||0.1)+0.05);
+  }catch(e){}
+}
+function playNoise(vol,dur,filter){
+  if(SND.muted)return;
+  try{
+    const ctx=getSndCtx();
+    const buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate);
+    const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);
+    const src=ctx.createBufferSource(),g=ctx.createGain(),f=ctx.createBiquadFilter();
+    f.type=filter||'bandpass';f.frequency.value=800;f.Q.value=1.5;
+    src.buffer=buf;src.connect(f);f.connect(g);g.connect(ctx.destination);
+    g.gain.setValueAtTime(vol||0.2,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    src.start();src.stop(ctx.currentTime+dur+0.05);
+  }catch(e){}
+}
+// Named sound effects
+function sndShoot(wid){
+  if(wid==='sniper'){playTone(120,'sawtooth',.18,.005,.35,40);playNoise(.12,.15,'highpass');}
+  else if(wid==='ak47'||wid==='scar'){playTone(180,'square',.12,.005,.12,60);playNoise(.1,.08);}
+  else if(wid==='mp5k'){playTone(240,'square',.1,.003,.08,100);playNoise(.08,.06);}
+  else{playTone(200,'square',.12,.004,.14,80);playNoise(.1,.1);} // pistol
+}
+function sndReload(){playTone(600,'square',.06,.01,.06);setTimeout(()=>playTone(400,'square',.08,.01,.08),120);}
+function sndGrenade(){playTone(60,'sine',.4,.01,.7,20);playNoise(.35,.6,'lowpass');}
+function sndMelee(){playTone(120,'sawtooth',.2,.005,.12,40);playNoise(.15,.1);}
+function sndBarricadeHit(){playTone(80,'square',.15,.005,.18,30);playNoise(.12,.15,'lowpass');}
+function sndZombieDie(){playTone(160,'sawtooth',.1,.005,.2,40);playNoise(.08,.15);}
+function sndBarricadeAlarm(){if(SND.muted)return;playTone(880,'square',.22,.01,.25,660);setTimeout(()=>playTone(660,'square',.18,.01,.2,440),300);}
+function sndBossSpawn(){playTone(55,'sawtooth',.4,.05,.9,30);setTimeout(()=>playTone(40,'sawtooth',.35,.05,.9,25),300);}
+// ══ END SOUND ENGINE ══════════════════════════════════════════════════════════
+
 // ══ CORE ══
 const bgC=document.getElementById('bg-c'),animC=document.getElementById('anim-c');
 const mapC=document.getElementById('map-c'),shC=document.getElementById('sh-c');
@@ -410,6 +501,8 @@ const SEARCH_TYPES=[
    rolls:[{w:'ammoBoxes',max:15,chance:.62},{w:'funds',max:500,chance:.52}]},
   {id:'base',     label:'Base',     icon:'🏗', desc:'Up to 15 ammo boxes and 2 survivors.',
    rolls:[{w:'ammoBoxes',max:15,chance:.60},{w:'survivors',max:2,chance:.42}]},
+  {id:'armory',   label:'Armory',   icon:'🔧', desc:'Up to 2 weapon kits and 10 ammo boxes.',
+   rolls:[{w:'weaponKits',max:2,chance:.55},{w:'ammoBoxes',max:10,chance:.50}]},
 ];
 const NOTHING_CHANCE=0.22; // baseline - overridden by time of day in rollSearch
 
@@ -418,10 +511,72 @@ const CITIES=RAW.map(([name,lat,lon,pop])=>{const t=Math.max(0,Math.min(1,Math.l
 // ══ SAVE SYSTEM + STATS ══
 function loadSave(){try{return JSON.parse(localStorage.getItem('undeadinc_save')||'{}');}catch{return{};}}
 function writeSave(d){try{localStorage.setItem('undeadinc_save',JSON.stringify(d));}catch{}}
+// ── LOG SYSTEM ──────────────────────────────────────────────────────────────
+// ── STATS TRACKING ──────────────────────────────────────────────────────────
+function addStat(key, amount){
+  const s=loadSave();
+  if(!s.stats)s.stats={};
+  s.stats[key]=(s.stats[key]||0)+amount;
+  writeSave(s);
+}
+function renderStats(){
+  const s=loadSave();const st=s.stats||{};const zones=s.zones||{};
+  const clearedCount=Object.values(zones).filter(d=>d.status==='cleared').length;
+  const totalPers=Object.values(zones).reduce((a,d)=>d.status==='cleared'?a+(d.personnel||0):a,0);
+  const rows=[
+    ['Zombies Killed',st.kills||0],
+    ['Fights Won',st.fightsWon||0],
+    ['Fights Lost',st.fightsLost||0],
+    ['Zones Held',clearedCount],
+    ['Total Personnel',totalPers.toLocaleString()],
+    ['Funds Earned',('$'+(st.fundsEarned||0).toLocaleString())],
+    ['Searches Run',st.searchesRun||0],
+    ['Grenades Thrown',st.grenadesThrown||0],
+    ['Melee Hits',st.meleeHits||0],
+    ['Boss Kills',st.bossKills||0],
+    ['Weapon Kits Used',st.kitsUsed||0],
+    ['Days Survived',Math.floor((st.fightCount||0)/3)],
+  ];
+  document.getElementById('stats-body').innerHTML=rows.map(([n,v])=>`<div class="stat-row"><div class="stat-name">${n}</div><div class="stat-val">${v}</div></div>`).join('');
+}
+function addLog(type, text){
+  const s=loadSave(); if(!s.log)s.log=[];
+  s.log.unshift({type, text, ts:Date.now()});
+  if(s.log.length>20)s.log.pop();
+  writeSave(s);
+}
+function renderLog(){
+  const s=loadSave(); const entries=s.log||[];
+  const body=document.getElementById('log-body');
+  if(!entries.length){body.innerHTML='<div style="font-family:'Special Elite',cursive;font-size:.65rem;color:#1e2818;letter-spacing:.1em;">No entries yet.</div>';return;}
+  body.innerHTML=entries.map(e=>{
+    const d=new Date(e.ts);
+    const time=d.getHours().toString().padStart(2,'0')+d.getMinutes().toString().padStart(2,'0')+' HRS';
+    return `<div class="log-entry ${e.type}">${time} - ${e.text}</div>`;
+  }).join('');
+}
+
+// ── MAG UPGRADES ─────────────────────────────────────────────────────────────
+function getZoneUpgrades(zoneName){return getZoneData(zoneName).upgrades||{};}
+function hasUpgrade(zoneName,upId){return !!(getZoneUpgrades(zoneName)[upId]);}
+
+const ZONE_UPGRADES=[
+  {id:'watchtower', label:'Watchtower',  cost:5000,  desc:'Reveals adjacent hostile zone difficulty on hover. Visual indicator on map.'},
+  {id:'hospital',   label:'Hospital',    cost:8000,  desc:'+3 personnel/min passive recovery from nearby cleared zones (supply line bonus).'},
+  {id:'radiotower', label:'Radio Tower', cost:12000, desc:'Search operations from this zone find 30% more often.'},
+];
+function getMagUpgrades(){const s=loadSave();return s.magUpgrades||{};}
+function getEffectiveMag(wid){
+  const w=WEAPONS[wid]; if(!w)return 0;
+  const up=getMagUpgrades()[wid]||0;
+  return w.mag+(up*5); // +5 rounds per upgrade level
+}
+
 function getInventory(){
   const s=loadSave();
-  if(!s.inventory)s.inventory={ownedWeapons:['pistol'],grenades:1,equipped:['pistol',null],deploySurvivors:0,ammoBoxes:0};
+  if(!s.inventory)s.inventory={ownedWeapons:['pistol'],grenades:1,equipped:['pistol',null],deploySurvivors:0,ammoBoxes:0,weaponKits:0};
   if(s.inventory.ammoBoxes===undefined)s.inventory.ammoBoxes=0;
+  if(s.inventory.weaponKits===undefined)s.inventory.weaponKits=0;
   return s.inventory;
 }
 function saveInventory(inv){const s=loadSave();s.inventory=inv;writeSave(s);}
@@ -467,6 +622,7 @@ function tickPersonnelDrain() {
   const s = loadSave();
   const zones = s.zones || {};
   let changed = false;
+  for(const [,d] of Object.entries(zones)){if((d.infectionSurge||0)>0&&d.surgeDecayAt&&Date.now()>d.surgeDecayAt){d.infectionSurge=Math.max(0,(d.infectionSurge||0)-0.1);if(d.infectionSurge<=0){delete d.infectionSurge;delete d.surgeDecayAt;}changed=true;}}
   const clearedNames = new Set(Object.entries(zones).filter(([,d])=>d.status==='cleared').map(([n])=>n));
 
   for (const [name, data] of Object.entries(zones)) {
@@ -504,13 +660,60 @@ function tickPersonnelDrain() {
       data.personnel = Math.max(0, (data.personnel || 0) - intDrain);
       changed = true;
       if (data.personnel < INFECT_THRESHOLD) {
-        // Zone fell below minimum - resets to original hostile state
+        // Zone fell below minimum - resets to hostile; spread infection to neighbours
         zones[name] = { status: 'active', difficulty: 1.0 };
         delete drainAccum[name];
+        // Infect adjacent zones: temporary difficulty boost for 30 min (game time)
+        const _cityIdxSpread=CITIES.findIndex(c=>c.name===name);
+        if(_cityIdxSpread>=0&&delaunay){
+          for(const _ni of delaunay.neighbors(_cityIdxSpread)){
+            const _nb=CITIES[_ni];if(!_nb)continue;
+            const _nz=zones[_nb.name];
+            if(_nz&&_nz.status==='active'){
+              _nz.infectionSurge=(_nz.infectionSurge||0)+0.3; // +0.3 difficulty mult temporarily
+              _nz.surgeDecayAt=Date.now()+1000*60*4; // 4 real min (28 game min)
+            }
+          }
+        }
       }
     }
   }
-  if (changed) { s.zones = zones; writeSave(s); }
+  // ── SUPPLY LINE: adjacent cleared zones share +2 personnel/min ───────────
+  let supplyChanged=false;
+  for(const [name, data] of Object.entries(zones)){
+    if(data.status!=='cleared')continue;
+    const cityIdx2=CITIES.findIndex(c=>c.name===name); if(cityIdx2<0)continue;
+    let supplyBonus=0;
+    const seen2=new Set();
+    for(const ni of delaunay.neighbors(cityIdx2)){
+      if(seen2.has(ni))continue; seen2.add(ni);
+      const nb=CITIES[ni]; if(!nb)continue;
+      if(clearedNames.has(nb.name)){
+        supplyBonus+=2; // +2/min per cleared neighbour
+        // Hospital bonus: +3 extra if neighbour has hospital
+        if(hasUpgrade(nb,'hospital'))supplyBonus+=3;
+      }
+    }
+    // Reduce by assigned survivors (each reduces drain by 5/min)
+    const assignedSv=(data.assignedSurvivors||0);
+    const svReduction=assignedSv*5;
+    if(supplyBonus>0||svReduction>0){
+      const netPerMin=supplyBonus-svReduction; // can be negative (drain reduction)
+      if(!drainAccum[name+'_supply'])drainAccum[name+'_supply']=0;
+      drainAccum[name+'_supply']+=netPerMin/60;
+      const intSupply=Math.trunc(drainAccum[name+'_supply']);
+      if(Math.abs(intSupply)>=1){
+        drainAccum[name+'_supply']-=intSupply;
+        const city=CITIES.find(c=>c.name===name);
+        const cap=city?Math.round(1000+city.t*9000):5000;
+        data.personnel=Math.max(0,Math.min(cap,(data.personnel||0)+intSupply));
+        supplyChanged=true;
+      }
+    }
+  }
+  if(supplyChanged){s.zones=zones;writeSave(s);}
+  // ── END SUPPLY LINE ────────────────────────────────────────────────────────
+  if (changed||supplyChanged) { s.zones = zones; writeSave(s); }
   if (appState === 'map') updateMapStats();
 }
 setInterval(tickPersonnelDrain, 1000);
@@ -593,7 +796,11 @@ function drawMap(ts){
   const _cm=Math.floor((tod.hour-_ch)*60);
   const _cs=Math.floor(((tod.hour-_ch)*60-_cm)*60);
   const _ck=document.getElementById('map-clock');
-  if(_ck)_ck.textContent=String(_ch).padStart(2,'0')+String(_cm).padStart(2,'0')+' HRS';
+  if(_ck){
+    const icon=tod.isDay?'*':')'; // * = sun approximation, ) = crescent moon
+    const iconStyle=tod.isDay?'color:#b8a030;':'color:#8090b8;';
+    _ck.innerHTML=`<span style="${iconStyle}font-size:1.1em;margin-right:4px;">${icon}</span>`+String(_ch).padStart(2,'0')+String(_cm).padStart(2,'0')+' HRS';
+  }
 
   // ── SUN (right side arc, day only) ──
   if(tod.isDay){
@@ -693,8 +900,12 @@ const SH={
   currency:0,
   paused:false,
   diffSpike:false,spikeMult:1.0,bonusWave:false,
+  meleeCool:0,meleeFlash:0,bossSpawned:false,
+  meleeFlash:0, // visual flash timer
+  repairCost:200, // cost to restore one barricade board
   // weapons
   activeSlot:0,equipped:['pistol',null],grenades:0,
+  wear:[0,0], // 0.0-1.0 degradation per slot; increases recoil
   ammo:[12,0],reloading:[false,false],reloadTimer:[0,0],
   grenadeProjectiles:[],explosions:[],
   grenadeCook:0,  // countdown ms before throw (2000 = 2s cook)
@@ -704,6 +915,9 @@ const SH={
   waveTotal:0,waveSpawned:0,spawnTimer:0,spawnInterval:2000,
   bgBuildings:[],bgBuildingsFar:[],firePos:[],
 };
+
+function getFortLevel(zoneName){return(getZoneData(zoneName).fortLevel||0);}
+function getFortMult(zoneName){return 1+getFortLevel(zoneName)*0.25;} // +25% HP per level, max 5 = +125%
 
 function initBarricade(){
   const bx=SH.barricadeX,gy=SH.groundY;
@@ -723,7 +937,11 @@ function initBarricade(){
     [-42,-90,22,20,18,3,'#161008'],[-20,-92,22,20,18,3,'#181008'],
     [2,-90,22,20,18,3,'#141008'],[24,-92,22,20,18,3,'#161008'],
   ];
-  SH.barBoards=layout.map(([rx,ry,w,h,maxHp,row,col],id)=>({rx,ry,w,h,hp:maxHp,maxHp,row,col,alive:true,crack:0,tilt:(Math.random()-.5)*.05,id}));
+  const fortMult=SH.zone?getFortMult(SH.zone.name):1;
+  SH.barBoards=layout.map(([rx,ry,w,h,maxHp,row,col],id)=>{
+    const fm=Math.round(maxHp*fortMult);
+    return{rx,ry,w,h,hp:fm,maxHp:fm,row,col,alive:true,crack:0,tilt:(Math.random()-.5)*.05,id};
+  });
   SH.fallenBoards=[];
   SH.barMaxHP=SH.barBoards.reduce((s,b)=>s+b.maxHp,0);
   SH.barHP=SH.barMaxHP;
@@ -770,15 +988,21 @@ function initShooter(zone){
   SH.diffSpike=_spikeActive;
   SH.spikeMult=_spikeMult;
   // ── end probably temporary ──────────────────────────────────────────────────
-  SH.difficulty=mult*(1+zone.t*2.2)*(_tod2.isDay?1.0:1.12)*_spikeMult;
+  const _zd=getZoneData(zone.name);
+  const _surgeMult=1+(_zd.infectionSurge||0);
+  SH.difficulty=mult*(1+zone.t*2.2)*(_tod2.isDay?1.0:1.12)*_spikeMult*_surgeMult;
   const tierWaves=[3,4,5,6,7,8];
   const tidx=['ISOLATED','SCATTERED','INFESTED','OVERRUN','SIEGE','LOST CITY'].indexOf(zone.tier.label);
   SH.totalWaves=tierWaves[Math.max(0,Math.min(5,tidx))];
   // ── probably temporary ──────────────────────────────────────────────────────
   // Random bonus "FINAL WAVE" - triggers roughly 1 in every 10 fights
   const _fc=loadSave().fightCount||0;
-  SH.bonusWave=Math.random()<0.10; // ~10% chance per fight
-  if(SH.bonusWave)SH.totalWaves+=1; // silently add a wave - player finds out when they get there
+  const _prevFakes=loadSave().fakeFinalsSeen||0;
+  const _bonusRoll=Math.random();
+  // Base 10% chance; if player has seen fake before, 15% chance of 2 bonus waves
+  SH.bonusWave=_bonusRoll<(_prevFakes>0?0.15:0.10)?1:0;
+  if(_prevFakes>1&&_bonusRoll<0.06)SH.bonusWave=2; // 6% chance of DOUBLE fake
+  SH.totalWaves+=SH.bonusWave; // add 1 or 2 bonus waves silently
   // ── end probably temporary ──────────────────────────────────────────────────
   SH.zombies=[];SH.bullets=[];SH.sparks=[];
   SH.firing=false;SH.shootTimer=0;SH.flashTimer=0;SH.currency=0;SH.paused=false;
@@ -788,10 +1012,10 @@ function initShooter(zone){
   SH.grenades=_shInv.grenades||0;
   SH.activeSlot=0;
   SH.ammo=[
-    (WEAPONS[SH.equipped[0]]||WEAPONS.pistol).mag,
-    SH.equipped[1]?(WEAPONS[SH.equipped[1]]||WEAPONS.pistol).mag:0
+    getEffectiveMag(SH.equipped[0]||'pistol'),
+    SH.equipped[1]?getEffectiveMag(SH.equipped[1]):0
   ];
-  SH.reloading=[false,false];SH.reloadTimer=[0,0];
+  SH.reloading=[false,false];SH.reloadTimer=[0,0];SH.wear=[0,0];SH.bossSpawned=false;
   SH.magazines=1; // start each fight with 1 magazine
   SH.grenadeProjectiles=[];SH.explosions=[];
   // Spawn survivor NPCs
@@ -808,7 +1032,14 @@ function initShooter(zone){
       look:ZLOOKS[si%ZLOOKS.length],aimAngle:-Math.PI,  // facing left by default
       shots:_svW0.mag,magSize:_svW0.mag,reloading:false,reloadTimer:0,reloadMs:_svW0.reloadMs});
   }
-  updateWeaponHUD();updateGrenadeHUD();updateAmmoHUD();
+  updateWeaponHUD();updateGrenadeHUD();
+  // Repair button: visible only during wave/between
+  const _rb2=document.getElementById('sh-repair-btn');
+  if(_rb2){
+    const _showRepair=(SH.phase==='wave'||SH.phase==='between')&&!SH.paused;
+    _rb2.style.display=_showRepair?'block':'none';
+    _rb2.disabled=(loadSave().funds||0)<SH.repairCost||SH.barBoards.every(b=>b.alive);
+  }updateAmmoHUD();
   SH.phase='intro';SH.phaseTimer=2500;
   SH.mouseX=W/2;SH.mouseY=SH.groundY-50;
   initBarricade();
@@ -829,17 +1060,32 @@ function setupWave(wn){
   SH.phase='wave';
 }
 
-function mkZombie(){
-  const sizes=[.72,.85,1.0,1.12,1.35];const sz=sizes[Math.floor(Math.random()*sizes.length)];
+function mkZombie(forceType){
+  // Type roll: 70% normal, 15% runner, 10% heavy, 5% crawler
+  const typeRoll=forceType||((r=>{if(r<0.70)return'normal';if(r<0.85)return'runner';if(r<0.95)return'heavy';return'crawler';})(Math.random()));
+  // Size by type
+  const sz=typeRoll==='heavy'?(1.4+Math.random()*.3):
+             typeRoll==='runner'?(.6+Math.random()*.2):
+             typeRoll==='crawler'?(.8+Math.random()*.2):
+             [.72,.85,1.0,1.12,1.35][Math.floor(Math.random()*5)];
   const diff=SH.difficulty,wv=SH.wave;
-  const hp=Math.round((14+SH.zone.t*36+wv*4)*diff*(sz*.6+.4));
+  const hpBase=Math.round((14+SH.zone.t*36+wv*4)*diff*(sz*.6+.4));
+  const hp=typeRoll==='heavy'?Math.round(hpBase*3.5):
+           typeRoll==='runner'?Math.round(hpBase*0.6):
+           typeRoll==='crawler'?Math.round(hpBase*0.8):hpBase;
   const look=ZLOOKS[Math.floor(Math.random()*ZLOOKS.length)];
   const bloodX=(Math.random()-.5)*10,bloodY=-34+Math.random()*(-10);
-  return{x:-60,y:SH.groundY,speed:(26+SH.zone.t*34+wv*1.5)*diff,
-    hp,maxHp:hp,sz,state:'walk',anim:Math.random()*Math.PI*2,
-    atkTimer:0,atkRate:1500/Math.sqrt(diff),
-    dmg:Math.round((8+SH.zone.t*12)*diff*.6),
-    targetBoard:null,dying:0,wobble:(Math.random()-.5)*.12,look,
+  const baseSpeed=(26+SH.zone.t*34+wv*1.5)*diff;
+  const speed=typeRoll==='runner'?baseSpeed*2.8:
+              typeRoll==='heavy'?baseSpeed*0.45:
+              typeRoll==='crawler'?baseSpeed*0.22:baseSpeed;
+  const dmg=Math.round((8+SH.zone.t*12)*diff*.6*(typeRoll==='heavy'?2.5:1));
+  return{x:-60,y:SH.groundY,speed,
+    hp,maxHp:hp,sz,type:typeRoll,
+    state:'walk',anim:Math.random()*Math.PI*2,
+    atkTimer:0,atkRate:(typeRoll==='heavy'?2800:1500)/Math.sqrt(diff),
+    dmg,targetBoard:null,dying:0,wobble:(Math.random()-.5)*.12,look,
+    crawling:typeRoll==='crawler',groundY:SH.groundY,
     blood:Math.random()<.65?{x:bloodX,y:bloodY,r:3+Math.random()*5}:null};
 }
 
@@ -848,11 +1094,14 @@ function fireBullet(){
   const w=WEAPONS[wid]||WEAPONS.pistol;
   const gx=SH.playerX,gy=SH.playerY-38;
   const baseAngle=Math.atan2(SH.mouseY-gy,SH.mouseX-gx);
-  const spread=(Math.random()-.5)*w.recoil*2;
+  const wearFactor=1+SH.wear[SH.activeSlot]*3; // up to 4x recoil at max wear
+  const spread=(Math.random()-.5)*w.recoil*2*wearFactor;
   const angle=baseAngle+spread;
   const _pierce=wid==='sniper'?2:0; // sniper pierces up to 3 zombies (2 extra)
   SH.bullets.push({x:gx,y:gy,vx:Math.cos(angle)*w.speed,vy:Math.sin(angle)*w.speed,dmg:w.dmg,pierce:_pierce});
+  SH.wear[SH.activeSlot]=Math.min(0.85,SH.wear[SH.activeSlot]+0.0008);
   SH.flashTimer=110;SH.muzzleAngle=angle;
+  sndShoot(wid);
   SH.sparks.push({x:gx+10,y:gy-3,vx:58+Math.random()*35,vy:-(48+Math.random()*28),life:1,maxLife:720,col:'rgba(188,142,32,',sz:2.5,type:'shell',rot:Math.random()*6.28,rotV:(Math.random()-.5)*11});
 }
 
@@ -862,15 +1111,18 @@ function updateShooter(dt){
   SH.flashTimer=Math.max(0,SH.flashTimer-dt);
   SH.shootTimer=Math.max(0,SH.shootTimer-dt);
   if(SH.grenadeCook>0)SH.grenadeCook=Math.max(0,SH.grenadeCook-dt);
+  if(SH.meleeCool>0)SH.meleeCool=Math.max(0,SH.meleeCool-dt);
+  if(SH.meleeFlash>0)SH.meleeFlash=Math.max(0,SH.meleeFlash-dt);
   // reload timers
   [0,1].forEach(si=>{
     if(SH.reloading[si]){
       SH.reloadTimer[si]=Math.max(0,SH.reloadTimer[si]-dt);
       if(SH.reloadTimer[si]<=0){
         SH.reloading[si]=false;
-        SH.ammo[si]=(WEAPONS[SH.equipped[si]]||WEAPONS.pistol).mag;
+        SH.ammo[si]=getEffectiveMag(SH.equipped[si]||'pistol');
         if(si===SH.activeSlot)updateWeaponHUD();
         updateAmmoHUD();
+        sndReload();
       }
     }
   });
@@ -891,6 +1143,7 @@ function updateShooter(dt){
     if(g.timeLeft<=0){
       SH.grenadeProjectiles.splice(gi,1);
       SH.explosions.push({x:g.x,y:g.y,r:0,maxR:330,life:1,maxLife:700});
+      sndGrenade();
       // damage all zombies in radius (3x blast, max damage)
       for(const z of SH.zombies){if(z.state==='dying'||z.state==='dead')continue;if(Math.hypot(z.x-g.x,z.y-g.y)<330){z.hp=0;z.state='dying';spawnBlood(z.x,z.y-40,0,-80);spawnBlood(z.x,z.y-20,(Math.random()-.5)*120,-60);}}
     }
@@ -937,7 +1190,22 @@ function updateShooter(dt){
     SH.barHP=Math.max(0,SH.barBoards.filter(b=>b.alive).reduce((s,b)=>s+b.hp,0));
     if(SH.barHP<=0){SH.phase='lose';SH.phaseTimer=3500;return;}
     if(SH.waveSpawned>=SH.waveTotal&&SH.zombies.every(z=>z.state==='dying'||z.state==='dead')){
-      if(SH.wave>=SH.totalWaves){SH.phase='win';SH.phaseTimer=3500;}
+      // Check if we should spawn a boss this wave
+      const isBossZone=['SIEGE','LOST CITY'].includes(SH.zone.tier.label);
+      const bossWaveIdx=Math.round(SH.totalWaves*0.6); // boss on wave ~60% through
+      if(isBossZone&&SH.wave===bossWaveIdx&&!SH.bossSpawned&&Math.random()<0.35){
+        // Spawn boss
+        SH.bossSpawned=true;
+        const boss=mkZombie('heavy');
+        boss.x=-80;boss.sz=3.5;
+        const bossHp=Math.round((250+SH.zone.t*400)*SH.difficulty);
+        boss.hp=bossHp;boss.maxHp=bossHp;boss.speed*=0.4;boss.dmg*=4;boss.atkRate=3500;
+        boss.isBoss=true;
+        SH.zombies.push(boss);
+        SH.waveTotal+=1; // extend wave for boss kill
+        SH.waveSpawned=SH.waveTotal; // no more spawns
+        sndBossSpawn();
+      } else if(SH.wave>=SH.totalWaves){SH.phase='win';SH.phaseTimer=3500;}
       else{SH.phase='between';SH.phaseTimer=4500;}
     }
   }
@@ -952,6 +1220,8 @@ function updateZombies(dt){
     if(z.state==='dying'){z.dying+=dt;if(z.dying>800)z.state='dead';continue;}
     if(z.state==='walk'){
       z.x+=z.speed*dt/1000;
+      // Crawlers hug the ground
+      if(z.crawling)z.y=z.groundY+10;
       if(z.x+z.sz*18>=SH.barricadeX){z.state='attack';z.x=SH.barricadeX-z.sz*18;z.targetBoard=selectBoardToAttack();}
     }
     if(z.state==='attack'){
@@ -962,6 +1232,8 @@ function updateZombies(dt){
       if(z.atkTimer>=z.atkRate){
         if(z.targetBoard&&z.targetBoard.alive){
           z.targetBoard.hp-=z.dmg;z.targetBoard.crack=1-z.targetBoard.hp/z.targetBoard.maxHp;
+          sndBarricadeHit();
+          if((SH.barHP/SH.barMaxHP)<0.3)sndBarricadeAlarm();
           if(z.targetBoard.hp<=0)destroyBoard(z.targetBoard);
           // Splinter sparks
           for(let p=0;p<3;p++)SH.sparks.push({x:SH.barricadeX+z.targetBoard.rx+Math.random()*z.targetBoard.w,y:SH.groundY+z.targetBoard.ry,vx:(Math.random()-.5)*40-10,vy:-(15+Math.random()*30),life:1,maxLife:300,col:'rgba(55,35,15,',sz:2+Math.random()*2,type:'wood'});
@@ -987,11 +1259,20 @@ function updateBullets(dt){
         if(b.y>z.y-z.sz*52)_dmgMult=0.55;
         if(b.y>z.y-z.sz*22)_dmgMult=0.25;
         const _dmg=Math.max(1,Math.round(b.dmg*_dmgMult));
+        // Leg shots on normal/runner/heavy can convert to crawler if not already
+        if(_dmgMult===0.25&&!z.crawling&&z.type!=='crawler'&&Math.random()<0.45){
+          z.crawling=true;z.speed*=0.25;z.state='walk';z.y=z.groundY+10;
+          z.hp-=_dmg;spawnBlood(b.x,b.y,b.vx,b.vy);
+        } else {
         z.hp-=_dmg;spawnBlood(b.x,b.y,b.vx,b.vy);if(z.hp<=0){z.state='dying';
           // ── reward: currency per kill ──────────────────────────────────────
           SH.currency+=Math.round(30+Math.random()*44); // <- $30-$74 per kill (-26%)
           // ── end reward: currency per kill ─────────────────────────────────
           const _fe=document.getElementById('sh-funds-v');if(_fe)_fe.textContent='$'+SH.currency.toLocaleString();
+          sndZombieDie();
+          addStat('kills',1);
+          if(z.isBoss)addStat('bossKills',1);
+        }
         }
         hitCount++;
         if(hitCount>=pierce+1)break; // non-pierce: stop at 1; sniper: stop at 3
@@ -1149,6 +1430,17 @@ function drawShooter(ts){
   // ══ BULLETS ══
   for(const b of SH.bullets){const ba=Math.atan2(b.vy,b.vx);ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ba);const bg=ctx.createLinearGradient(-14,0,6,0);bg.addColorStop(0,'rgba(255,220,80,0)');bg.addColorStop(1,'rgba(255,240,140,.9)');ctx.fillStyle=bg;ctx.fillRect(-14,-1.5,20,3);ctx.restore();}
 
+  // MELEE FLASH
+  if(SH.meleeFlash>0){
+    const mfa=SH.meleeFlash/180;
+    const ctx=shX;
+    ctx.save();ctx.globalAlpha=mfa*.7;
+    ctx.strokeStyle=`rgba(220,180,60,${mfa})`;ctx.lineWidth=3;
+    const px=SH.playerX,py=SH.playerY;
+    ctx.beginPath();ctx.arc(px-30,py-25,65,Math.PI*.7,Math.PI*1.3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px-62,py-15);ctx.lineTo(px-20,py-45);ctx.stroke();
+    ctx.restore();
+  }
   // MUZZLE FLASH
   if(SH.flashTimer>0){const fa=SH.flashTimer/110,gx=px+Math.cos(SH.muzzleAngle)*44,gy2=(py-34)+Math.sin(SH.muzzleAngle)*44;const fl=ctx.createRadialGradient(gx,gy2,0,gx,gy2,26);fl.addColorStop(0,`rgba(255,232,95,${fa})`);fl.addColorStop(.4,`rgba(255,120,18,${fa*.7})`);fl.addColorStop(1,'rgba(255,60,0,0)');ctx.fillStyle=fl;ctx.beginPath();ctx.arc(gx,gy2,26,0,Math.PI*2);ctx.fill();}
 
@@ -1218,6 +1510,7 @@ function drawShooter(ts){
 // ══ HUMAN ZOMBIE DRAWING ══
 function drawZombie(ctx, z){
   if(z.state==='dead')return;
+  const zType=z.type||'normal';
   const s=z.sz,L=z.look;
   let alpha=1,dieRot=0;
   if(z.state==='dying'){const prog=Math.min(1,z.dying/650);dieRot=prog*1.35;alpha=Math.max(0,1-prog*1.25);}
@@ -1227,10 +1520,18 @@ function drawZombie(ctx, z){
   const bob=isAtk?0:Math.abs(Math.sin(z.anim*9))*1.8*s;
 
   ctx.save();
-  ctx.translate(z.x,z.y);ctx.rotate(dieRot+z.wobble);ctx.globalAlpha=alpha;
+  ctx.translate(z.x, z.crawling ? z.groundY+10 : z.y);
+  const crawlRot=z.crawling ? Math.PI*0.42 : 0; // tipped forward on ground
+  ctx.rotate(dieRot+z.wobble+crawlRot);ctx.globalAlpha=alpha;
 
   // Shadow
   ctx.fillStyle='rgba(0,0,0,.26)';ctx.beginPath();ctx.ellipse(0,0,13*s,4*s,0,0,Math.PI*2);ctx.fill();
+
+  // Type-specific skin tint
+  const _skR=zType==='heavy'?Math.max(0,L.k[0]-30):zType==='runner'?Math.min(255,L.k[0]+10):L.k[0];
+  const _skG=zType==='heavy'?Math.max(0,L.k[1]-30):L.k[1];
+  const _skB=zType==='heavy'?Math.max(0,L.k[2]-30):L.k[2];
+  const _shR=zType==='heavy'?Math.max(0,L.s[0]-20):L.s[0];
 
   // LEGS
   // Left leg
@@ -1320,6 +1621,17 @@ function drawZombie(ctx, z){
     ctx.fillStyle=hpR>.6?'rgba(45,175,38,.9)':hpR>.3?'rgba(195,145,18,.9)':'rgba(200,28,28,.9)';
     ctx.fillRect(-bw/2,-90*s,bw*hpR,4*s);
   }
+  // Type badge
+  if(zType!=='normal'){
+    const badge=zType==='heavy'?'HEAVY':zType==='runner'?'RUNNER':'CRAWLER';
+    const badgeCol=zType==='heavy'?'rgba(200,80,20,.85)':zType==='runner'?'rgba(200,185,20,.85)':'rgba(20,185,120,.85)';
+    ctx.font=;ctx.textAlign='center';
+    ctx.fillStyle=badgeCol;ctx.fillText(badge,0,-98*s);
+  }
+  if(z.crawling&&zType!=='crawler'){
+    ctx.font=;ctx.textAlign='center';
+    ctx.fillStyle='rgba(20,160,100,.7)';ctx.fillText('crawling',0,-106*s);
+  }
   ctx.restore();
 }
 
@@ -1328,8 +1640,17 @@ function updateShooterHUD(){
   const fill=document.getElementById('sh-bar-fill');
   fill.style.width=(hpR*100)+'%';fill.style.background=hpR>.6?'#4a9a30':hpR>.3?'#9a8020':'#9a2020';
   // ── probably temporary ──────────────────────────────────────────────────────
-  const _isBonusWave=SH.bonusWave&&SH.wave===SH.totalWaves;
-  document.getElementById('sh-wave-lbl').textContent=_isBonusWave?'FINAL WAVE!!':`WAVE ${SH.wave} / ${SH.wave>=SH.totalWaves-1&&SH.bonusWave?SH.totalWaves-1:SH.totalWaves}`;
+  const _bonusOffset=SH.bonusWave||0;
+  const _realTotal=SH.totalWaves-_bonusOffset;
+  const _hasBoss=SH.zombies.some(z=>z.isBoss&&(z.state==='walk'||z.state==='attack'));
+  const _isBonusWave=_bonusOffset>0&&SH.wave>_realTotal;
+  const _isSecondBonus=_bonusOffset>=2&&SH.wave===SH.totalWaves;
+  document.getElementById('sh-wave-lbl').textContent=
+    _hasBoss?'!! BOSS !!':
+    _isSecondBonus?'FINAL WAVE!! (FOR REAL)':
+    _isBonusWave?'FINAL WAVE!!':
+    `WAVE ${SH.wave} / ${_realTotal}`;
+  document.getElementById('sh-wave-lbl').style.color=_hasBoss?'#cc3010':'';
   // ── end probably temporary ──────────────────────────────────────────────────
   const msg=document.getElementById('sh-msg'),sub=document.getElementById('sh-sub-msg');
   updateWeaponHUD();updateGrenadeHUD();
@@ -1345,7 +1666,8 @@ function updateShooterHUD(){
   if(_rb)_rb.className='sh-retreat-btn';
   if(_pb){_pb.innerHTML='&#9646;&#9646; PAUSE';_pb.style.color='';_pb.style.borderColor='';}
   if(SH.phase==='intro'){
-    msg.textContent=SH.diffSpike?'DANGER':'PREPARE';
+    const _b2=SH.zombies.some(z=>z.isBoss);
+    msg.textContent=_b2?'BOSS INCOMING':SH.diffSpike?'DANGER':'PREPARE';
     msg.style.color=SH.diffSpike?'#cc2020':'#8a6820';
     msg.className='sh-msg show';
     sub.textContent=SH.diffSpike
@@ -1403,10 +1725,14 @@ function endShooter(won){
     inv.deploySurvivors=0; save.inventory=inv;
 
     save.zones[name] = { ...existing, status: 'cleared', personnel: newPersonnel, clearedAt: Date.now() };
+  addStat('fightsWon',1);addStat('fundsEarned',SH.currency);
+  addLog('fight-win',`<b>${SH.zone.name}</b> defended - +${newPersonnel-prevPersonnel} personnel, +$${SH.currency}`);
     // ── end reward ──────────────────────────────────────────────────────────
   } else {
     // Zone lost: reset to original color and difficulty
     save.zones[name] = { status: 'active', difficulty: 1.0 };
+    addStat('fightsLost',1);
+    addLog('fight-lose',`<b>${SH.zone.name}</b> lost to the horde`);
     // Lose deployed survivors
     const _inv=save.inventory||{};
     const deployed=_inv.deploySurvivors||0;
@@ -1521,6 +1847,51 @@ function renderInventory(){
     `<div style="font-family:'Special Elite',cursive;font-size:.6rem;color:#2a3020;letter-spacing:.1em;margin-top:.8rem;">No survivors yet. Win zones or buy from the shop.</div>`;
 
   // Arsenal
+  // Mag upgrade section
+  const magUpgrades=getMagUpgrades();
+  const magUpHTML=`<div class="inv-section-title" style="margin-top:.8rem;">MAGAZINE UPGRADES <span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#2a3020;letter-spacing:.06em;font-style:italic;">+5 rounds per upgrade | $800 each</span></div>
+    ${(inv.ownedWeapons||['pistol']).map(wid=>{
+      const w=WEAPONS[wid];if(!w)return'';
+      const lvl=magUpgrades[wid]||0;
+      const effMag=getEffectiveMag(wid);
+      const upgCost=800+lvl*400;
+      const canAfford=(loadSave().funds||0)>=upgCost;
+      return `<div class="inv-weapon-row">
+        <div class="inv-weapon-name">${w.label}</div>
+        <span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#2a3020;">mag: ${effMag} (+${lvl*5})</span>
+        <button class="inv-equip-btn" onclick="buyMagUpgrade('${wid}')" ${canAfford?'':'disabled'}>UPGRADE $${upgCost}</button>
+      </div>`;
+    }).join('')}`;
+
+  // Survivor zone assignment
+  const clearZones=Object.entries(loadSave().zones||{}).filter(([,d])=>d.status==='cleared');
+  const totalAssigned=clearZones.reduce((a,[,d])=>a+(d.assignedSurvivors||0),0);
+  const freeS=Math.max(0,(loadSave().survivors||0)-totalAssigned-(inv.deploySurvivors||0));
+  const assignHTML=clearZones.length>0&&(loadSave().survivors||0)>0?`<div class="inv-section-title" style="margin-top:.8rem;">ZONE DEFENDERS <span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#2a3020;font-style:italic;">each reduces drain by 5/min</span></div>
+    <div style="font-family:'Special Elite',cursive;font-size:.6rem;color:#2a3020;letter-spacing:.08em;margin-bottom:.5rem;">Unassigned survivors: <b style="color:#4a6040;">${freeS}</b></div>
+    ${clearZones.map(([n,d])=>{
+      const cur=d.assignedSurvivors||0;
+      return`<div class="inv-weapon-row">
+        <div class="inv-weapon-name">${n}</div>
+        <button class="inv-equip-btn" onclick="adjZoneSurvivor('${n}',-1)" ${cur<=0?'disabled':''}>-</button>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:#5a9858;min-width:18px;text-align:center;">${cur}</span>
+        <button class="inv-equip-btn" onclick="adjZoneSurvivor('${n}',1)" ${freeS<=0?'disabled':''}>+</button>
+      </div>`;
+    }).join('')}`:'';
+
+  // Zone upgrades
+  const clearedZonesList=Object.entries(loadSave().zones||{}).filter(([,d])=>d.status==='cleared');
+  const upgradeHTML=clearedZonesList.length?`<div class="inv-section-title" style="margin-top:.8rem;">ZONE UPGRADES <span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#2a3020;font-style:italic;">permanent zone improvements</span></div>
+    ${clearedZonesList.map(([n])=>ZONE_UPGRADES.map(u=>{
+      const owned=hasUpgrade(n,u.id);
+      const canAfford=(loadSave().funds||0)>=u.cost;
+      return `<div class="inv-weapon-row">
+        <div class="inv-weapon-name">${n}</div>
+        <span style="font-family:'Special Elite',cursive;font-size:.52rem;color:#2a3020;flex:1;">${u.label}: ${u.desc.substring(0,40)}...</span>
+        <button class="inv-equip-btn ${owned?'equipped':''}" onclick="buyZoneUpgrade('${n}','${u.id}')" ${owned||!canAfford?'disabled':''}>${owned?'BUILT':('$'+u.cost.toLocaleString())}</button>
+      </div>`;
+    }).join('')).join('')}`:'';
+
   const arsenalHTML=`<div class="inv-section-title" style="margin-top:.8rem;">ARSENAL</div>
     ${(inv.ownedWeapons||['pistol']).map(wid=>{
       const w=WEAPONS[wid];if(!w)return'';
@@ -1533,7 +1904,46 @@ function renderInventory(){
       </div>`;
     }).join('')}`;
 
-  body.innerHTML=slotHTML+survHTML+arsenalHTML;
+  // Fortification section
+  const zd=getZoneData(SH.zone?SH.zone.name:'');
+  const fortHTML=''; // Fort section injected below
+
+  body.innerHTML=slotHTML+survHTML+magUpHTML+assignHTML+upgradeHTML+arsenalHTML;
+}
+function buyZoneUpgrade(zoneName, upId){
+  if(hasUpgrade(zoneName, upId))return;
+  const up=ZONE_UPGRADES.find(u=>u.id===upId);if(!up)return;
+  const s=loadSave();
+  if((s.funds||0)<up.cost)return;
+  s.funds-=up.cost;
+  if(!s.zones[zoneName])return;
+  if(!s.zones[zoneName].upgrades)s.zones[zoneName].upgrades={};
+  s.zones[zoneName].upgrades[upId]=true;
+  writeSave(s);
+  addLog('search',`<b>${zoneName}</b>: ${up.label} built`);
+  renderInventory();updateMapStats();
+}
+function buyMagUpgrade(wid){
+  const s=loadSave();
+  const cur=s.magUpgrades?.[wid]||0;
+  const cost=800+cur*400;
+  if((s.funds||0)<cost)return;
+  s.funds-=cost;
+  if(!s.magUpgrades)s.magUpgrades={};
+  s.magUpgrades[wid]=(s.magUpgrades[wid]||0)+1;
+  writeSave(s);renderInventory();
+}
+function adjZoneSurvivor(zoneName,delta){
+  const s=loadSave();
+  if(!s.zones||!s.zones[zoneName])return;
+  const cur=s.zones[zoneName].assignedSurvivors||0;
+  const inv=s.inventory||{};
+  const totalAssigned=Object.values(s.zones).reduce((a,d)=>a+(d.assignedSurvivors||0),0);
+  const free=Math.max(0,(s.survivors||0)-totalAssigned-(inv.deploySurvivors||0));
+  if(delta>0&&free<=0)return;
+  if(delta<0&&cur<=0)return;
+  s.zones[zoneName].assignedSurvivors=Math.max(0,cur+delta);
+  writeSave(s);renderInventory();
 }
 function invEquip(wid,slot){
   const inv=getInventory();
@@ -1578,6 +1988,18 @@ function SH_openAmmoBox(){
   saveInventory(inv);
   updateAmmoHUD();
 }
+function SH_useWeaponKit(){
+  if(SH.phase==='win'||SH.phase==='lose')return;
+  const inv=getInventory();
+  if((inv.weaponKits||0)<=0)return;
+  inv.weaponKits--;
+  SH.wear[SH.activeSlot]=0;
+  addStat('kitsUsed',1);
+  saveInventory(inv);
+  const el=document.getElementById('sh-kit-cnt');if(el)el.textContent=inv.weaponKits;
+  updateWeaponHUD();
+  sndReload(); // satisfying click
+}
 function updateAmmoHUD(){
   const inv=getInventory();
   const ac=document.getElementById('sh-ammo-cnt');
@@ -1586,6 +2008,46 @@ function updateAmmoHUD(){
   if(ac)ac.textContent=inv.ammoBoxes||0;
   if(ab)ab.disabled=(inv.ammoBoxes||0)<=0;
   if(mc)mc.textContent=SH.magazines;
+  const _kc=document.getElementById('sh-kit-cnt');if(_kc)_kc.textContent=inv.weaponKits||0;
+  const _kb=document.getElementById('sh-kit-btn');if(_kb){_kb.disabled=(inv.weaponKits||0)<=0;_kb.style.opacity=(inv.weaponKits||0)>0?'1':'.35';}
+}
+function SH_repairBarricade(){
+  if(SH.phase!=='between'&&SH.phase!=='wave')return;
+  const s=loadSave(); const funds=s.funds||0;
+  const cost=SH.repairCost;
+  if(funds<cost)return;
+  // Find lowest-row dead board to restore
+  const dead=SH.barBoards.filter(b=>!b.alive).sort((a,b2)=>a.row-b2.row);
+  if(!dead.length)return;
+  const board=dead[0];
+  board.alive=true; board.hp=Math.round(board.maxHp*0.6); board.crack=0.4; // restored at 60% HP
+  s.funds-=cost; writeSave(s);
+  SH.repairCost=Math.round(SH.repairCost*1.4); // gets more expensive each use
+  const rc=document.getElementById('sh-repair-cost');if(rc)rc.textContent=SH.repairCost;
+  updateMapStats();
+}
+function SH_melee(){
+  if(SH.meleeCool>0||SH.phase!=='wave')return;
+  SH.meleeCool=2000; // 2s cooldown
+  sndMelee();
+  // Hit any zombie within melee range of the player
+  const px=SH.playerX,py=SH.playerY;
+  const meleeRange=65;
+  let hit=false;
+  for(const z of SH.zombies){
+    if(z.state==='dying'||z.state==='dead')continue;
+    const dist=Math.hypot(z.x-px,z.y-py);
+    if(dist<meleeRange){
+      const meleeDmg=30; // flat melee damage
+      z.hp-=meleeDmg;
+      spawnBlood(z.x,z.y-30,-(50+Math.random()*40),-(20+Math.random()*30));
+      addStat('meleeHits',1);
+      if(z.hp<=0){z.state='dying';SH.currency+=Math.round(30+Math.random()*44);const _fe=document.getElementById('sh-funds-v');if(_fe)_fe.textContent='$'+SH.currency.toLocaleString();sndZombieDie();addStat('kills',1);}
+      hit=true;
+    }
+  }
+  // Visual: brief melee flash on player position
+  SH.meleeFlash=180;
 }
 function SH_togglePause(){
   if(SH.phase==='win'||SH.phase==='lose')return;
@@ -1596,6 +2058,7 @@ function SH_togglePause(){
 function SH_retreat(){if(!SH.paused)return; // only available when paused
   // Leave the fight with no penalty
   const _rs=loadSave();_rs.fightCount=(_rs.fightCount||0)+1;writeSave(_rs); // zone keeps current state
+  if(SH.bonusWave>0){const _fs=loadSave();_fs.fakeFinalsSeen=(_fs.fakeFinalsSeen||0)+SH.bonusWave;writeSave(_fs);}
   runPendingSearches();
   const _cs=loadSave();_cs.funds=(_cs.funds||0)+SH.currency;_cs.fightCount=(_cs.fightCount||0)+1;writeSave(_cs);
   document.getElementById('b-cont').disabled=false;
@@ -1608,7 +2071,8 @@ function SH_switchSlot(slot){
 function SH_throwGrenade(){
   if(SH.grenades<=0||SH.phase!=='wave'||SH.grenadeCook>0)return;
   SH.grenades--;
-  SH.grenadeCook=2000; // 2-second cook before throw
+  SH.grenadeCook=2000;
+  addStat('grenadesThrown',1);
   const inv=getInventory();inv.grenades=SH.grenades;saveInventory(inv);
   updateGrenadeHUD();
   // schedule actual throw after cook time
@@ -1634,8 +2098,11 @@ function updateWeaponHUD(){
         lbl.textContent=w.label+' [RELOADING '+Math.round(pct*100)+'%]';
         lbl.style.color='#a86020';
       } else {
-        lbl.textContent=w.label+' '+SH.ammo[i]+'/'+w.mag;
-        lbl.style.color=i===SH.activeSlot?'#c8a060':'#8a5020';
+        const wearPct=Math.round(SH.wear[i]*100);
+        const wearStr=wearPct>20?` [${wearPct}%WR]`:'';
+        const wearCol=wearPct>60?'#a04020':wearPct>30?'#a07020':'';
+        lbl.textContent=w.label+' '+SH.ammo[i]+'/'+w.mag+wearStr;
+        lbl.style.color=wearCol||(i===SH.activeSlot?'#c8a060':'#8a5020');
       }
     }
     if(el){el.classList.toggle('active',i===SH.activeSlot);el.style.opacity=wid?'1':'.3';}
@@ -1684,7 +2151,10 @@ function rollSearch(typeId){
   const t=SEARCH_TYPES.find(x=>x.id===typeId);
   if(!t)return{type:typeId,gains:{},nothing:true};
   const _searchTod=getTimeOfDay();
-  const _nothingChance=_searchTod.isDay?0.14:0.32; // day: 14% nothing | night: 32% nothing
+  // Radio tower in any cleared zone reduces nothing chance by 30%
+  const _radioBoost=Object.entries(loadSave().zones||{}).some(([,d])=>d.status==='cleared'&&(d.upgrades||{}).radiotower);
+  const _nothingBase=_searchTod.isDay?0.14:0.32;
+  const _nothingChance=_radioBoost?_nothingBase*0.7:_nothingBase; // day: 14% nothing | night: 32% nothing
   if(Math.random()<_nothingChance)return{type:typeId,label:t.label,gains:{},nothing:true};
   const gains={};
   for(const r of t.rolls){
@@ -1712,6 +2182,8 @@ function runPendingSearches(){
   if(totalFunds>0){s.funds=(s.funds||0)+totalFunds;}
   if(totalSurvivors>0){s.survivors=Math.min(10,(s.survivors||0)+totalSurvivors);}
   if(totalAmmo>0){const inv=s.inventory||{};inv.ammoBoxes=(inv.ammoBoxes||0)+totalAmmo;s.inventory=inv;}
+  const totalKits=results.reduce((a,r)=>a+(r.gains.weaponKits||0),0);
+  if(totalKits>0){const inv2=s.inventory||{};inv2.weaponKits=(inv2.weaponKits||0)+totalKits;s.inventory=inv2;}
   if(totalPersonnel>0){
     // Split across cleared zones - do inline (can't call awardPersonnelToZones without writeSave)
     const cleared=Object.entries(s.zones||{}).filter(([,d])=>d.status==='cleared');
@@ -1724,6 +2196,10 @@ function runPendingSearches(){
       }
     }
   }
+  // Log search summary
+  const _foundCount=results.filter(r=>!r.nothing).length;
+  addLog('search',`Search op: <b>${results.length} sites</b> - ${_foundCount} found something`);
+  addStat('searchesRun',results.length);
   s.pendingSearchResults=results;
   s.searchQueue=[];
   writeSave(s);
@@ -1807,7 +2283,7 @@ function commitSearches(){
 // ══ STATE MACHINE ══
 function goTo(newState){
   appState=newState;
-  ['s-menu','s-mode','s-map','s-shooter','s-shop','s-inv','s-search'].forEach(id=>document.getElementById(id).classList.add('off'));
+  ['s-menu','s-mode','s-map','s-shooter','s-shop','s-inv','s-search','s-log','s-stats'].forEach(id=>document.getElementById(id).classList.add('off'));
   const _shpb=document.getElementById('sh-pause-btn');if(_shpb)_shpb.style.display='none';
   const hideOffice=newState==='map'||newState==='shooter';
   bgC.style.opacity=hideOffice?'0':'1';animC.style.opacity=hideOffice?'0':'1';
@@ -1825,6 +2301,8 @@ function goTo(newState){
   else if(newState==='shop'){document.getElementById('s-shop').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderShop();}
   else if(newState==='inventory'){document.getElementById('s-inv').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderInventory();}
   else if(newState==='search'){document.getElementById('s-search').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';srchAlloc={};renderSearchScreen();}
+  else if(newState==='log'){document.getElementById('s-log').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderLog();}
+  else if(newState==='stats'){document.getElementById('s-stats').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderStats();}
 }
 
 // ══ MAP INTERACTIONS ══
@@ -1834,11 +2312,16 @@ mapHit.addEventListener('pointermove',e=>{e.preventDefault();
   if(appState!=='map'||!delaunay)return;
   const mx=e.clientX,my=e.clientY;
   if(!inOhio(mx,my)){hovCity=null;tip.style.display='none';mapHit.style.cursor='crosshair';return;}
+  // Check if any cleared zone neighbour has watchtower (reveals hostile zone difficulty)
+  window._anyWatchtower=delaunay&&Object.entries(loadSave().zones||{}).some(([,d])=>d.status==='cleared'&&(d.upgrades||{}).watchtower);
   hovCity=CITIES[delaunay.find(mx,my)];mapHit.style.cursor='pointer';
   const c=hovCity,ti=c.tier;
   document.getElementById('tip-name').textContent=c.name.toUpperCase();
   document.getElementById('tip-pop').textContent='Population: '+c.pop.toLocaleString();
-  const tEl=document.getElementById('tip-tier');tEl.textContent=ti.label;tEl.style.color=ti.hex;
+  const tEl=document.getElementById('tip-tier');
+  const surgeDisp=(getZoneData(c.name).infectionSurge||0)>0?' [SURGE]':'';
+  tEl.textContent=ti.label+(window._anyWatchtower?' t='+c.t.toFixed(2):'')+surgeDisp;
+  tEl.style.color=ti.hex;
   document.getElementById('tip-bar').style.width=(ti.pct*100)+'%';document.getElementById('tip-bar').style.background=ti.hex;
   document.getElementById('tip-desc').textContent=ti.desc;
   const st=zoneStatus(c.name);
@@ -1847,10 +2330,14 @@ mapHit.addEventListener('pointermove',e=>{e.preventDefault();
   if(st==='cleared'){
     hint='Zone secured - defend again';
     const zd=getZoneData(c.name);
-    pEl.textContent='Personnel: '+(zd.personnel||0).toLocaleString();
+    const surgeStr=(zd.infectionSurge||0)>0?` [SURGE +${Math.round((zd.infectionSurge||0)*100)}%]`:'';
+    pEl.textContent='Personnel: '+(zd.personnel||0).toLocaleString()+surgeStr;
     pEl.style.display='block';
   } else {
-    pEl.style.display='none';
+    const zdh=getZoneData(c.name);
+    const surgeStr=(zdh.infectionSurge||0)>0?` SURGE ACTIVE (+${Math.round((zdh.infectionSurge||0)*100)}% harder)`:'';
+    pEl.textContent=surgeStr;
+    pEl.style.display=surgeStr?'block':'none';
   }
   document.querySelector('.tip-hint').textContent=hint;
   let tx=mx+14,ty=my-72;if(tx+205>W-10)tx=mx-218;ty=Math.max(60,Math.min(ty,H-48-150));
@@ -1885,6 +2372,7 @@ document.addEventListener('keydown', e => {
   else if(e.key==='Escape'&&appState==='shooter'){if(SH.phase==='win'||SH.phase==='lose')return;SH_togglePause();}
   else if((e.key==='r'||e.key==='R')&&appState==='shooter'){startReload(SH.activeSlot);}
   else if(e.key==='['){const _fs=loadSave();_fs.funds=(_fs.funds||0)+40000;writeSave(_fs);if(appState==='map')updateMapStats();}
+  else if(e.key==='m'||e.key==='M'){if(appState==='shooter')SH_melee();}
   else if(e.key===']'){const _gi=getInventory();_gi.grenades=Math.min(99,(_gi.grenades||0)+1);saveInventory(_gi);if(appState==='shooter'){SH.grenades=_gi.grenades;updateGrenadeHUD();}}
   else if((e.key==='l'||e.key==='L')&&appState==='map'&&hovCity){
     const s=loadSave();if(!s.zones)s.zones={};
@@ -1903,6 +2391,10 @@ document.getElementById('b-shop-back').addEventListener('click',()=>goTo('map'))
 document.getElementById('b-inv-back').addEventListener('click',()=>goTo('map'));
 document.getElementById('b-search').addEventListener('click',()=>goTo('search'));
 document.getElementById('b-search-back').addEventListener('click',()=>goTo('map'));
+document.getElementById('b-log').addEventListener('click',()=>goTo('log'));
+document.getElementById('b-log-back').addEventListener('click',()=>goTo('map'));
+document.getElementById('b-stats').addEventListener('click',()=>goTo('stats'));
+document.getElementById('b-stats-back').addEventListener('click',()=>goTo('map'));
 document.getElementById('b-mode-back').addEventListener('click',()=>goTo('menu'));
 document.getElementById('card-life').addEventListener('click',()=>{
   // Wipe ALL save data - fresh start
@@ -1925,6 +2417,7 @@ function loop(ts){
 }
 let rTimer;
 window.addEventListener('resize',()=>{clearTimeout(rTimer);rTimer=setTimeout(()=>{document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('touchstart',()=>{try{if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();}catch(e){}},{once:true,passive:true});
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
 resize();buildBg();initPtcls();if(appState==='map')bakeProjections();if(appState==='shooter'){SH.groundY=H*.74;SH.barricadeX=W*.68;SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;}},150);});
 resize();buildBg();initPtcls();
