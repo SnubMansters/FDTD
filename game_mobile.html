@@ -27,7 +27,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 #overlay{position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse at 60% 45%,transparent 25%,rgba(0,0,0,.72) 100%);transition:opacity .5s ease;}
 #scanlines{position:absolute;inset:0;z-index:6;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.035) 3px,rgba(0,0,0,.035) 4px);}
 #red-flash{position:absolute;inset:0;z-index:7;pointer-events:none;background:rgba(150,5,5,.1);opacity:0;transition:opacity .5s ease;}
-.screen{position:absolute;inset:0;z-index:10;transition:opacity .45s ease;}
+.screen{position:absolute;inset:0;z-index:10;transition:opacity .45s ease;pointer-events:auto;}
 .off{opacity:0;pointer-events:none!important;}
 
 /* MENU */
@@ -209,8 +209,8 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
   <div id="s-menu" class="screen">
     <div class="game-title">UNDEAD<br>INC.</div>
     <div class="game-sub">Economy &bull; Survival &bull; Apocalypse</div>
-    <button class="m-btn" id="b-new">New Game</button>
-    <button class="m-btn" id="b-cont" disabled>Continue</button>
+    <button class="m-btn" id="b-new" onclick="goTo('mode')">New Game</button>
+    <button class="m-btn" id="b-cont" onclick="goTo('map')" disabled>Continue</button>
     <button class="m-btn" id="b-opt">Options</button>
     <button class="m-btn" id="b-exit">Exit</button>
   </div>
@@ -258,7 +258,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
       <div id="sh-wave-lbl"></div>
     </div>
     <button id="sh-pause-btn" onclick="SH_togglePause()">&#9646;&#9646; PAUSE</button>
-    <button id="sh-mute-btn" onclick="SND.muted=!SND.muted;this.style.opacity=SND.muted?'0.35':'1';" style="position:absolute;top:10px;right:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:.15em;color:#3a2820;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 10px;height:34px;cursor:pointer;pointer-events:all;">SFX</button>
+    <button id="sh-mute-btn" onclick="SND.muted=!SND.muted;this.style.opacity=SND.muted?'0.35':'1';" style="position:absolute;top:10px;right:12px;z-index:15;font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:.15em;color:#3a2820;background:rgba(8,6,4,.85);border:1px solid #2a1808;padding:0 10px;height:34px;cursor:pointer;">SFX</button>
     <button id="sh-repair-btn" onclick="SH_repairBarricade()">&#9660; REPAIR ($<span id="sh-repair-cost">200</span>)</button>
     <div id="sh-overlay"><div id="sh-msg"></div><div id="sh-sub-msg"></div><button id="sh-retreat-btn" onclick="SH_retreat()">&#8592; RETREAT</button></div>
     <div id="sh-loadout">
@@ -266,6 +266,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
       <div class="sh-wep-slot" id="sh-slot1" onclick="SH_switchSlot(1)"><span class="sh-wep-key">[2]</span><span class="sh-wep-name" id="sh-slot1-lbl">-</span></div>
       <div style="width:1px;height:28px;background:#2a1808;margin:0 4px;flex-shrink:0;"></div>
       <button onclick="SH_melee()" style="font-family:Bebas Neue,sans-serif;font-size:.82rem;letter-spacing:.14em;color:#8a6020;background:rgba(14,10,4,.9);border:1px solid #3a2810;padding:0 12px;height:34px;cursor:pointer;">[M] MELEE</button>
+      <button id="sh-reload-btn" onclick="startReload(SH.activeSlot)" style="font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.14em;color:#806820;background:rgba(14,12,4,.9);border:1px solid #3a2e10;padding:0 14px;height:52px;cursor:pointer;touch-action:manipulation;">RELOAD</button>
       <button id="sh-nade-btn" onclick="SH_throwGrenade()">GRENADE (<span id="sh-nade-cnt">0</span>)</button>
       <div style="width:1px;height:28px;background:#1a2030;margin:0 4px;flex-shrink:0;"></div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
@@ -330,7 +331,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     <div class="inv-body" id="inv-body"></div>
   </div>
   <!-- SEARCH NOTIFICATION MODAL - z-index:70, shown after fight -->
-  <div id="srch-notify" style="display:none;position:absolute;inset:0;z-index:70;background:rgba(0,0,0,.78);align-items:center;justify-content:center;pointer-events:all;">
+  <div id="srch-notify" style="display:none;position:absolute;inset:0;z-index:70;background:rgba(0,0,0,.78);align-items:center;justify-content:center;pointer-events:none;">
     <div id="srch-notify-box">
       <div class="sn-title">Search Report</div>
       <div class="sn-subtitle">Results from the last operation</div>
@@ -339,7 +340,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     </div>
   </div>
   <!-- MAP CONTROLS - standalone z-index:50, outside any screen div -->
-  <div id="map-ctrl" style="display:none;position:absolute;top:0;left:0;right:0;height:52px;background:rgba(1,6,3,.95);border-bottom:1px solid #0e2018;z-index:50;pointer-events:all;flex-shrink:0;align-items:center;justify-content:space-between;padding:0 1.2rem;gap:1rem;">
+  <div id="map-ctrl" style="display:none;position:absolute;top:0;left:0;right:0;height:52px;background:rgba(1,6,3,.95);border-bottom:1px solid #0e2018;z-index:50;pointer-events:none;flex-shrink:0;align-items:center;justify-content:space-between;padding:0 1.2rem;gap:1rem;">
     <button class="map-back-btn" id="b-map-back" style="pointer-events:all;">&#8592; Back</button>
     <div style="display:flex;gap:5px;">
       <button class="map-action-btn" id="b-shop" style="pointer-events:all;">SHOP</button>
@@ -362,7 +363,7 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
 </div>
 <script>
 'use strict';
-// ══ SOUND ENGINE ══════════════════════════════════════════════════════════════
+// == SOUND ENGINE ==============================================================
 const SND={ctx:null,muted:false};
 function getSndCtx(){
   if(!SND.ctx){SND.ctx=new(window.AudioContext||window.webkitAudioContext)();}
@@ -397,23 +398,114 @@ function playNoise(vol,dur,filter){
     src.start();src.stop(ctx.currentTime+dur+0.05);
   }catch(e){}
 }
-// Named sound effects
+// Named sound effects - reworked for grit over goof
 function sndShoot(wid){
-  if(wid==='sniper'){playTone(120,'sawtooth',.18,.005,.35,40);playNoise(.12,.15,'highpass');}
-  else if(wid==='ak47'||wid==='scar'){playTone(180,'square',.12,.005,.12,60);playNoise(.1,.08);}
-  else if(wid==='mp5k'){playTone(240,'square',.1,.003,.08,100);playNoise(.08,.06);}
-  else{playTone(200,'square',.12,.004,.14,80);playNoise(.1,.1);} // pistol
+  if(SND.muted)return;
+  try{
+    const ctx=getSndCtx(),t=ctx.currentTime;
+    // All guns: sharp transient noise burst + pitched body + tail
+    if(wid==='sniper'){
+      // Deep crack - low thud, long decay
+      playNoise(.32,.18,'lowpass');
+      playTone(95,'sawtooth',.22,.001,.28,22);
+      playTone(55,'sine',.18,.001,.4,18);
+    } else if(wid==='ak47'){
+      // Punchy mid crack
+      playNoise(.22,.07,'bandpass');
+      playTone(130,'sawtooth',.16,.001,.09,38);
+    } else if(wid==='scar'){
+      // Heavier, slower crack
+      playNoise(.25,.09,'bandpass');
+      playTone(110,'sawtooth',.18,.001,.12,32);
+    } else if(wid==='mp5k'){
+      // Tight fast pop
+      playNoise(.16,.05,'highpass');
+      playTone(180,'sawtooth',.12,.001,.06,70);
+    } else {
+      // Pistol: sharp snap
+      playNoise(.18,.06,'bandpass');
+      playTone(150,'sawtooth',.14,.001,.08,50);
+    }
+  }catch(e){}
 }
-function sndReload(){playTone(600,'square',.06,.01,.06);setTimeout(()=>playTone(400,'square',.08,.01,.08),120);}
-function sndGrenade(){playTone(60,'sine',.4,.01,.7,20);playNoise(.35,.6,'lowpass');}
-function sndMelee(){playTone(120,'sawtooth',.2,.005,.12,40);playNoise(.15,.1);}
-function sndBarricadeHit(){playTone(80,'square',.15,.005,.18,30);playNoise(.12,.15,'lowpass');}
-function sndZombieDie(){playTone(160,'sawtooth',.1,.005,.2,40);playNoise(.08,.15);}
-function sndBarricadeAlarm(){if(SND.muted)return;playTone(880,'square',.22,.01,.25,660);setTimeout(()=>playTone(660,'square',.18,.01,.2,440),300);}
-function sndBossSpawn(){playTone(55,'sawtooth',.4,.05,.9,30);setTimeout(()=>playTone(40,'sawtooth',.35,.05,.9,25),300);}
-// ══ END SOUND ENGINE ══════════════════════════════════════════════════════════
+function sndReload(){
+  if(SND.muted)return;
+  // Magazine click - two mechanical taps
+  setTimeout(()=>playNoise(.08,.04,'highpass'),0);
+  setTimeout(()=>playNoise(.12,.04,'highpass'),90);
+  setTimeout(()=>playTone(320,'sine',.06,.005,.07),180);
+}
+function sndGrenade(){
+  if(SND.muted)return;
+  // Distant thud - low boom with rumble tail
+  playTone(48,'sine',.38,.005,.55,18);
+  playTone(72,'sine',.28,.005,.4,24);
+  playNoise(.3,.5,'lowpass');
+  setTimeout(()=>playNoise(.15,.4,'lowpass'),120);
+}
+function sndMelee(){
+  if(SND.muted)return;
+  // Dull impact thud - no pitch, just crack
+  playNoise(.22,.08,'lowpass');
+  playTone(80,'sine',.14,.001,.08,30);
+}
+function sndBarricadeHit(){
+  if(SND.muted)return;
+  // Wood crack - sharp splinter
+  playNoise(.18,.06,'bandpass');
+  playTone(180,'sawtooth',.1,.001,.06,60);
+}
+function sndZombieGroan(){
+  if(SND.muted)return;
+  try{
+    const ctx=getSndCtx(),t=ctx.currentTime;
+    // Low guttural moan: sine wave modulated slowly, filtered noise layer
+    const osc=ctx.createOscillator();
+    const groanGain=ctx.createGain();
+    const distortion=ctx.createWaveShaper();
+    // Waveshaper for gritty throat sound
+    const curve=new Float32Array(256);
+    for(let i=0;i<256;i++){const x=i*2/256-1;curve[i]=x<0?-Math.pow(-x,.7):Math.pow(x,.7);}
+    distortion.curve=curve;
+    osc.type='sine';
+    // Random groan pitch - low register, slight pitch wobble
+    const basePitch=55+Math.random()*30;
+    osc.frequency.setValueAtTime(basePitch,t);
+    osc.frequency.linearRampToValueAtTime(basePitch*(0.85+Math.random()*.25),t+0.3);
+    osc.frequency.linearRampToValueAtTime(basePitch*(0.7+Math.random()*.2),t+0.7);
+    groanGain.gain.setValueAtTime(0,t);
+    groanGain.gain.linearRampToValueAtTime(0.12+Math.random()*.06,t+0.08);
+    groanGain.gain.setValueAtTime(0.12+Math.random()*.06,t+0.5);
+    groanGain.gain.exponentialRampToValueAtTime(0.001,t+0.9+Math.random()*.4);
+    osc.connect(distortion);distortion.connect(groanGain);groanGain.connect(ctx.destination);
+    osc.start(t);osc.stop(t+1.5);
+    // Breathy noise layer on top
+    playNoise(0.03+Math.random()*.02, 0.8+Math.random()*.4, 'bandpass');
+  }catch(e){}
+}
+function sndZombieDie(){
+  if(SND.muted)return;
+  // Brief wet thud - no cartoon tone
+  playNoise(.14,.12,'lowpass');
+  playTone(70,'sine',.08,.001,.1,30);
+}
+function sndBarricadeAlarm(){
+  if(SND.muted)return;
+  // Low urgent pulse - not a cartoon beep
+  playTone(220,'sine',.15,.02,.12);
+  setTimeout(()=>playTone(185,'sine',.12,.02,.12),200);
+  setTimeout(()=>playTone(220,'sine',.15,.02,.12),400);
+}
+function sndBossSpawn(){
+  if(SND.muted)return;
+  // Deep subsonic rumble build
+  playTone(38,'sine',.35,.08,1.1,22);
+  playTone(55,'sawtooth',.2,.15,.9,30);
+  playNoise(.18,.8,'lowpass');
+}
+// == END SOUND ENGINE ==========================================================
 
-// ══ CORE ══
+// == CORE ==
 const bgC=document.getElementById('bg-c'),animC=document.getElementById('anim-c');
 const mapC=document.getElementById('map-c'),shC=document.getElementById('sh-c');
 const bgX=bgC.getContext('2d'),animX=animC.getContext('2d');
@@ -422,11 +514,11 @@ let W=0,H=0,CEIL_H=0,FLOOR_Y=0,appState='menu',lastTs=0;
 function resize(){W=window.innerWidth;H=window.innerHeight;bgC.width=animC.width=mapC.width=shC.width=W;bgC.height=animC.height=mapC.height=shC.height=H;CEIL_H=Math.round(H*.145);FLOOR_Y=Math.round(H*.61);}
 function mkRng(s){s=s>>>0;return()=>{s=(Math.imul(1664525,s)+1013904223)>>>0;return s/4294967296;};}
 
-// ══ OHIO DATA ══
+// == OHIO DATA ==
 const OHIO_BORDER=[[41.726,-84.820],[41.748,-84.340],[41.705,-83.456],[41.748,-83.280],[41.790,-83.110],[41.836,-82.850],[41.880,-82.600],[41.960,-82.400],[41.974,-82.010],[41.980,-81.700],[41.992,-81.480],[41.999,-81.200],[42.000,-80.900],[41.999,-80.520],[41.500,-80.520],[41.000,-80.520],[40.640,-80.520],[40.470,-80.640],[40.300,-80.742],[40.180,-80.844],[40.052,-80.862],[39.962,-80.872],[39.762,-81.082],[39.622,-81.322],[39.432,-81.492],[39.272,-81.682],[39.102,-81.872],[38.942,-82.012],[38.802,-82.182],[38.692,-82.282],[38.562,-82.442],[38.492,-82.602],[38.422,-82.772],[38.412,-82.962],[38.442,-83.132],[38.492,-83.332],[38.602,-83.522],[38.692,-83.762],[38.732,-84.052],[38.792,-84.302],[38.822,-84.522],[38.772,-84.820],[39.500,-84.820],[40.000,-84.820],[40.500,-84.820],[41.000,-84.820],[41.500,-84.820],[41.726,-84.820]];
 const RAW=[["Columbus",39.961,-82.999,905748],["Cleveland",41.499,-81.695,372624],["Cincinnati",39.103,-84.512,309317],["Toledo",41.663,-83.555,270871],["Akron",41.081,-81.519,190469],["Dayton",39.759,-84.192,137644],["Parma",41.384,-81.727,78103],["Canton",40.799,-81.379,70872],["Lorain",41.452,-82.182,63804],["Youngstown",41.100,-80.649,60068],["Hamilton",39.400,-84.561,62082],["Springfield",39.924,-83.809,58662],["Kettering",39.689,-84.169,55271],["Elyria",41.368,-82.107,53555],["Cuyahoga Falls",41.134,-81.485,50335],["Lakewood",41.482,-81.799,50022],["Middletown",39.515,-84.398,50728],["Euclid",41.593,-81.527,45838],["Mansfield",40.758,-82.515,46018],["Mentor",41.666,-81.340,45965],["Fairfield",39.347,-84.560,45762],["Dublin",40.099,-83.115,49328],["Newark",40.058,-82.402,49512],["Delaware",40.298,-83.068,42000],["Westerville",40.126,-82.929,40543],["Lancaster",39.719,-82.599,40453],["Findlay",41.044,-83.650,41202],["Lima",40.742,-84.105,36918],["Warren",41.238,-80.818,37665],["Brunswick",41.238,-81.842,37207],["Bowling Green",41.375,-83.651,31725],["Wooster",40.805,-81.935,26119],["Xenia",39.685,-83.927,25000],["Troy",40.038,-84.203,25000],["Athens",39.329,-82.101,24000],["Zanesville",39.940,-82.013,24878],["Sandusky",41.449,-82.707,24028],["Chillicothe",39.332,-82.982,22036],["Marysville",40.236,-83.367,22000],["Piqua",40.145,-84.243,20000],["Ashland",40.869,-82.318,20058],["Steubenville",40.364,-80.633,17000],["Tiffin",41.114,-83.179,17957],["Fremont",41.350,-83.121,16420],["Defiance",41.284,-84.357,16000],["Mount Vernon",40.393,-82.485,16990],["Portsmouth",38.732,-82.998,18463],["Urbana",40.110,-83.752,11000],["Bellefontaine",40.361,-83.760,13000],["Coshocton",40.272,-81.858,11000],["Cambridge",40.031,-81.589,10000],["Washington C.H.",39.536,-83.432,14000],["Circleville",39.601,-82.947,13992],["Marietta",39.415,-81.454,12959],["Wilmington",39.445,-83.828,12000],["Greenville",40.103,-84.631,12000],["Van Wert",40.869,-84.583,10840],["Ironton",38.537,-82.682,10000],["Gallipolis",38.819,-82.198,10000],["Celina",40.549,-84.570,10000],["Jackson",39.053,-82.637,6000],["Hillsboro",39.202,-83.612,6600],["Waverly",39.124,-83.014,4500],["Georgetown",38.868,-83.908,4700],["West Union",38.797,-83.542,3000],["Paulding",41.138,-84.584,3500],["Napoleon",41.393,-84.125,8749],["Bryan",41.475,-84.552,8500],["Wauseon",41.547,-84.144,7500],["Logan",39.540,-82.407,7500],["Upper Sandusky",40.827,-83.282,7000],["Kenton",40.648,-83.607,8000],["McArthur",39.247,-82.478,1800],["Caldwell",39.745,-81.521,1800],["Woodsfield",39.762,-81.111,2400],["Ashtabula",41.864,-80.790,18000],["Niles",41.183,-80.769,18000],["Conneaut",41.929,-80.554,12800],["Chardon",41.579,-81.210,5100]];
 function tierOf(p){if(p<5000)return{label:"ISOLATED",hex:"#ffb4b4",desc:"Sparse infection. Low resources.",pct:.12};if(p<20000)return{label:"SCATTERED",hex:"#e06060",desc:"Small hordes. Some supplies.",pct:.32};if(p<50000)return{label:"INFESTED",hex:"#c03030",desc:"Dense undead. Scavenge carefully.",pct:.52};if(p<150000)return{label:"OVERRUN",hex:"#8a1010",desc:"Danger at every corner.",pct:.70};if(p<400000)return{label:"SIEGE",hex:"#550808",desc:"Massive horde territory.",pct:.86};return{label:"LOST CITY",hex:"#2c0404",desc:"Civilization is gone.",pct:1};}
-// ══ WEAPONS + SHOP ══
+// == WEAPONS + SHOP ==
 const WEAPONS={
   pistol:{label:'Pistol',      dmg:25,   rate:190,  auto:false,recoil:0,    speed:940,  mag:12, reloadMs:1400},
   sniper:{label:'Sniper Rifle',dmg:28, rate:1800, auto:false,recoil:0,    speed:1400, mag:5,  reloadMs:3200},
@@ -444,15 +536,15 @@ const SHOP_ITEMS=[
   {id:'ammobox',     label:'Ammo Boxes (4)',price:400,  desc:'4 ammo boxes. Each holds 16 magazines.',      stack:true},
 ];
 
-// ══ TIME OF DAY ══
+// == TIME OF DAY ==
 // Returns { isDay, hour, dayFrac, sunAngle, moonAngle, label, skyCol }
 function getTimeOfDay(){
   const now=new Date();
   // Game time runs 7x faster than real time - 1 real day = 1 in-game week
-  // Real fractional hours (0-24) → game hours (0-24, cycling every ~3h26m real)
+  // Real fractional hours (0-24) -> game hours (0-24, cycling every ~3h26m real)
   const realHour=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
   const hour=(realHour*7)%24; // game hour: 0-24, completes every 3h25m real time
-  const gameDayOfWeek=Math.floor(realHour*7/24)%7; // 0=Mon…6=Sun (cosmetic, future use)
+  const gameDayOfWeek=Math.floor(realHour*7/24)%7; // 0=Mon...6=Sun (cosmetic, future use)
   const isDay=hour>=7&&hour<19;
   // dayFrac: 0=sunrise(7am), 1=sunset(7pm) - only valid during day
   const dayFrac=isDay?(hour-7)/12:0;
@@ -485,34 +577,34 @@ function getTimeOfDay(){
 //   Search NOTHING_CHANCE: day 0.14  |  night 0.32
 //   Fight difficulty multiplier: day 1.0  |  night 1.12
 
-// ══ SEARCH TYPES ══
+// == SEARCH TYPES ==
 const SEARCH_TYPES=[
-  {id:'school',   label:'School',   icon:'🏫', desc:'Up to $300 and 2 survivors.',
+  {id:'school',   label:'School',   icon:'[SCHOOL]', desc:'Up to $300 and 2 survivors.',
    rolls:[{w:'funds',max:300,chance:.65},{w:'survivors',max:2,chance:.28}]},
-  {id:'church',   label:'Church',   icon:'⛪', desc:'Up to $900 and 2 ammo boxes.',
+  {id:'church',   label:'Church',   icon:'[CHURCH]', desc:'Up to $900 and 2 ammo boxes.',
    rolls:[{w:'funds',max:900,chance:.60},{w:'ammoBoxes',max:2,chance:.55}]},
-  {id:'business', label:'Business', icon:'🏢', desc:'Up to $10, a survivor, and 1000 personnel.',
+  {id:'business', label:'Business', icon:'[BUSINESS]', desc:'Up to $10, a survivor, and 1000 personnel.',
    rolls:[{w:'funds',max:10,chance:.80},{w:'survivors',max:1,chance:.18},{w:'personnel',max:1000,chance:.30}]},
-  {id:'camp',     label:'Camp',     icon:'⛺', desc:'Up to 10 ammo boxes and 2 survivors.',
+  {id:'camp',     label:'Camp',     icon:'[CAMP]', desc:'Up to 10 ammo boxes and 2 survivors.',
    rolls:[{w:'ammoBoxes',max:10,chance:.58},{w:'survivors',max:2,chance:.38}]},
-  {id:'home',     label:'Home',     icon:'🏠', desc:'Up to $2000, 10 ammo boxes, and 1 survivor.',
+  {id:'home',     label:'Home',     icon:'[HOME]', desc:'Up to $2000, 10 ammo boxes, and 1 survivor.',
    rolls:[{w:'funds',max:2000,chance:.68},{w:'ammoBoxes',max:10,chance:.48},{w:'survivors',max:1,chance:.22}]},
-  {id:'factory',  label:'Factory',  icon:'🏭', desc:'Up to 15 ammo boxes and $500.',
+  {id:'factory',  label:'Factory',  icon:'[FACTORY]', desc:'Up to 15 ammo boxes and $500.',
    rolls:[{w:'ammoBoxes',max:15,chance:.62},{w:'funds',max:500,chance:.52}]},
-  {id:'base',     label:'Base',     icon:'🏗', desc:'Up to 15 ammo boxes and 2 survivors.',
+  {id:'base',     label:'Base',     icon:'[BASE]', desc:'Up to 15 ammo boxes and 2 survivors.',
    rolls:[{w:'ammoBoxes',max:15,chance:.60},{w:'survivors',max:2,chance:.42}]},
-  {id:'armory',   label:'Armory',   icon:'🔧', desc:'Up to 2 weapon kits and 10 ammo boxes.',
+  {id:'armory',   label:'Armory',   icon:'[ARMORY]', desc:'Up to 2 weapon kits and 10 ammo boxes.',
    rolls:[{w:'weaponKits',max:2,chance:.55},{w:'ammoBoxes',max:10,chance:.50}]},
 ];
 const NOTHING_CHANCE=0.22; // baseline - overridden by time of day in rollSearch
 
 const CITIES=RAW.map(([name,lat,lon,pop])=>{const t=Math.max(0,Math.min(1,Math.log10(pop/3000)/Math.log10(950000/3000)));return{name,lat,lon,pop,t,r:Math.round(255-t*132),g:Math.round(176-t*170),b:Math.round(176-t*170),sz:3+t*12,tier:tierOf(pop),phaseOff:(pop%1000)/1000*Math.PI*2,px:0,py:0};});
 
-// ══ SAVE SYSTEM + STATS ══
+// == SAVE SYSTEM + STATS ==
 function loadSave(){try{return JSON.parse(localStorage.getItem('undeadinc_save')||'{}');}catch{return{};}}
 function writeSave(d){try{localStorage.setItem('undeadinc_save',JSON.stringify(d));}catch{}}
-// ── LOG SYSTEM ──────────────────────────────────────────────────────────────
-// ── STATS TRACKING ──────────────────────────────────────────────────────────
+// -- LOG SYSTEM --------------------------------------------------------------
+// -- STATS TRACKING ----------------------------------------------------------
 function addStat(key, amount){
   const s=loadSave();
   if(!s.stats)s.stats={};
@@ -548,7 +640,7 @@ function addLog(type, text){
 function renderLog(){
   const s=loadSave(); const entries=s.log||[];
   const body=document.getElementById('log-body');
-  if(!entries.length){body.innerHTML='<div style="font-family:'Special Elite',cursive;font-size:.65rem;color:#1e2818;letter-spacing:.1em;">No entries yet.</div>';return;}
+  if(!entries.length){body.innerHTML="<div style='font-family:Special Elite,cursive;font-size:.65rem;color:#1e2818;letter-spacing:.1em;'>No entries yet.</div>";return;}
   body.innerHTML=entries.map(e=>{
     const d=new Date(e.ts);
     const time=d.getHours().toString().padStart(2,'0')+d.getMinutes().toString().padStart(2,'0')+' HRS';
@@ -556,7 +648,7 @@ function renderLog(){
   }).join('');
 }
 
-// ── MAG UPGRADES ─────────────────────────────────────────────────────────────
+// -- MAG UPGRADES -------------------------------------------------------------
 function getZoneUpgrades(zoneName){return getZoneData(zoneName).upgrades||{};}
 function hasUpgrade(zoneName,upId){return !!(getZoneUpgrades(zoneName)[upId]);}
 
@@ -595,18 +687,18 @@ function updateMapStats(){
   document.getElementById('stat-c').textContent='$'+(s.funds||0).toLocaleString();
 }
 
-// ── PERSONNEL DRAIN ──────────────────────────────────────────────────────────
+// -- PERSONNEL DRAIN ----------------------------------------------------------
 // Each cleared zone drains personnel based on adjacent HOSTILE (uncleared) zones.
 // Drain per adjacent hostile zone scales with that zone's difficulty (tier):
-//   Easy  (t ≈ 0): ~10 personnel/min
+//   Easy  (t ? 0): ~10 personnel/min
 //   Hard  (t = 1): ~100 personnel/min
 //   Formula: 10 + t * 90 per adjacent hostile zone, per minute
 // Drain per hostile neighbour is EXPONENTIAL so easy towns barely threaten
 // while hard zones (Columbus, Cleveland) bleed you fast.
-//   t=0   (tiny isolated town)  → ~2 personnel/min
-//   t=0.3 (small city ~20k)     → ~10 personnel/min
-//   t=0.6 (mid-size ~80k)       → ~40 personnel/min
-//   t=1.0 (lost city 900k+)     → ~200 personnel/min
+//   t=0   (tiny isolated town)  -> ~2 personnel/min
+//   t=0.3 (small city ~20k)     -> ~10 personnel/min
+//   t=0.6 (mid-size ~80k)       -> ~40 personnel/min
+//   t=1.0 (lost city 900k+)     -> ~200 personnel/min
 const DRAIN_BASE       = 2;    // <- drain/min at t=0 (weakest hostile zone)
 const DRAIN_TOP        = 200;  // <- drain/min at t=1 (hardest hostile zone)
 const INFECT_THRESHOLD = 100;  // <- personnel floor before zone resets to infected
@@ -614,7 +706,7 @@ let drainAccum = {};            // { zoneName: fractional personnel owed }
 
 function hostileDrainRate(t) {
   // Exponential curve: small t differences produce tiny rates, large t differences produce huge ones
-  return DRAIN_BASE * Math.pow(DRAIN_TOP / DRAIN_BASE, t); // <- exponential: 2 → 200 over t=0..1
+  return DRAIN_BASE * Math.pow(DRAIN_TOP / DRAIN_BASE, t); // <- exponential: 2 -> 200 over t=0..1
 }
 
 function tickPersonnelDrain() {
@@ -678,7 +770,7 @@ function tickPersonnelDrain() {
       }
     }
   }
-  // ── SUPPLY LINE: adjacent cleared zones share +2 personnel/min ───────────
+  // -- SUPPLY LINE: adjacent cleared zones share +2 personnel/min -----------
   let supplyChanged=false;
   for(const [name, data] of Object.entries(zones)){
     if(data.status!=='cleared')continue;
@@ -712,14 +804,14 @@ function tickPersonnelDrain() {
     }
   }
   if(supplyChanged){s.zones=zones;writeSave(s);}
-  // ── END SUPPLY LINE ────────────────────────────────────────────────────────
+  // -- END SUPPLY LINE --------------------------------------------------------
   if (changed||supplyChanged) { s.zones = zones; writeSave(s); }
   if (appState === 'map') updateMapStats();
 }
 setInterval(tickPersonnelDrain, 1000);
-// ── end personnel drain ──────────────────────────────────────────────────────
+// -- end personnel drain ------------------------------------------------------
 
-// ══ PROJECTION + VORONOI ══
+// == PROJECTION + VORONOI ==
 const GEO={LAT_MIN:38.20,LAT_MAX:42.10,LON_MIN:-85.05,LON_MAX:-80.35,COS:Math.cos(40.2*Math.PI/180)};
 let mRect={x:0,y:52,w:0,h:0},OHIO_PTS=[],delaunay=null,voronoiCells=[];
 function calcMapRect(){const aw=W-100,ah=H-52-48;const gAR=(GEO.LON_MAX-GEO.LON_MIN)*GEO.COS/(GEO.LAT_MAX-GEO.LAT_MIN);const sAR=aw/ah;let mw,mh;if(sAR>gAR){mh=ah;mw=mh*gAR;}else{mw=aw;mh=mw/gAR;}mRect={x:(W-mw)/2,y:52+(ah-mh)/2,w:mw,h:mh};}
@@ -729,7 +821,7 @@ function bakeProjections(){calcMapRect();for(const c of CITIES){const p=project(
 function inOhio(mx,my){let inside=false;for(let i=0,j=OHIO_PTS.length-1;i<OHIO_PTS.length;j=i++){const[xi,yi]=OHIO_PTS[i],[xj,yj]=OHIO_PTS[j];if(((yi>my)!==(yj>my))&&(mx<(xj-xi)*(my-yi)/(yj-yi)+xi))inside=!inside;}return inside;}
 function ohioPath(ctx){if(!OHIO_PTS.length)return;ctx.beginPath();OHIO_PTS.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));ctx.closePath();}
 
-// ══ OFFICE BACKGROUND ══
+// == OFFICE BACKGROUND ==
 function buildBg(){
   const ctx=bgX,rng=mkRng(42);
   ctx.fillStyle='#060609';ctx.fillRect(0,0,W,H);
@@ -777,7 +869,7 @@ function drawOfficeAnim(){
   document.getElementById('alert-lbl').style.opacity=fv>.55?(fv*.85).toFixed(2):'0';
 }
 
-// ══ OHIO MAP ══
+// == OHIO MAP ==
 let hovCity=null;
 function drawMap(ts){
   const ctx=mapX;ctx.clearRect(0,0,W,H);
@@ -802,11 +894,11 @@ function drawMap(ts){
     _ck.innerHTML=`<span style="${iconStyle}font-size:1.1em;margin-right:4px;">${icon}</span>`+String(_ch).padStart(2,'0')+String(_cm).padStart(2,'0')+' HRS';
   }
 
-  // ── SUN (right side arc, day only) ──
+  // -- SUN (right side arc, day only) --
   if(tod.isDay){
     // Arc: rises from bottom-right horizon at dawn, sets to bottom-right at dusk
     // Angle 0=bottom, PI/2=top-right peak
-    const sArc=tod.dayFrac*Math.PI; // 0(sunrise) → PI(sunset)
+    const sArc=tod.dayFrac*Math.PI; // 0(sunrise) -> PI(sunset)
     const sRadius=H*0.42;
     const sCx=W*0.88; // right side
     const sCy=H*0.78; // horizon level
@@ -831,7 +923,7 @@ function drawMap(ts){
     ctx.fillText(tod.label,sX,sY+sSize*2.2);
   }
 
-  // ── MOON (left side arc, night only) ──
+  // -- MOON (left side arc, night only) --
   if(!tod.isDay){
     const mArc=tod.nightFrac*Math.PI;
     const mRadius=H*0.42;
@@ -877,7 +969,7 @@ function drawMap(ts){
   ctx.fillStyle='rgba(0,0,0,.055)';for(let y=0;y<H;y+=3)ctx.fillRect(0,y,W,1);
 }
 
-// ══ SHOOTER ENGINE ══
+// == SHOOTER ENGINE ==
 // Zombie clothing presets (shirt, pants, skin, hair)
 const ZLOOKS=[
   {s:[52,36,24],p:[20,17,13],k:[148,140,118],h:[12,9,7]},
@@ -922,7 +1014,7 @@ function getFortMult(zoneName){return 1+getFortLevel(zoneName)*0.25;} // +25% HP
 function initBarricade(){
   const bx=SH.barricadeX,gy=SH.groundY;
   // Layout: [relX, relY, w, h, maxHp, row, col_variant]
-  // 4 rows × 4-5 boards, staggered brick pattern
+  // 4 rows ? 4-5 boards, staggered brick pattern
   const layout=[
     // Row 0 - heavy base boards
     [-44,-24,44,24,50,0,'#2e2010'],[-2,-24,44,24,50,0,'#2a1c0c'],
@@ -980,21 +1072,21 @@ function initShooter(zone){
   SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;
   const mult=zoneDiffMult(zone.name);
   const _tod2=getTimeOfDay();
-  // ── probably temporary ──────────────────────────────────────────────────────
+  // -- probably temporary ------------------------------------------------------
   // Rare difficulty spike: ~15% chance - makes the fight 2x-4x harder with a warning
   const _spikeRoll=Math.random();
   const _spikeActive=_spikeRoll<0.15;
   const _spikeMult=_spikeActive?(2+Math.random()*2):1.0; // 2x-4x harder
   SH.diffSpike=_spikeActive;
   SH.spikeMult=_spikeMult;
-  // ── end probably temporary ──────────────────────────────────────────────────
+  // -- end probably temporary --------------------------------------------------
   const _zd=getZoneData(zone.name);
   const _surgeMult=1+(_zd.infectionSurge||0);
   SH.difficulty=mult*(1+zone.t*2.2)*(_tod2.isDay?1.0:1.12)*_spikeMult*_surgeMult;
   const tierWaves=[3,4,5,6,7,8];
   const tidx=['ISOLATED','SCATTERED','INFESTED','OVERRUN','SIEGE','LOST CITY'].indexOf(zone.tier.label);
   SH.totalWaves=tierWaves[Math.max(0,Math.min(5,tidx))];
-  // ── probably temporary ──────────────────────────────────────────────────────
+  // -- probably temporary ------------------------------------------------------
   // Random bonus "FINAL WAVE" - triggers roughly 1 in every 10 fights
   const _fc=loadSave().fightCount||0;
   const _prevFakes=loadSave().fakeFinalsSeen||0;
@@ -1003,7 +1095,7 @@ function initShooter(zone){
   SH.bonusWave=_bonusRoll<(_prevFakes>0?0.15:0.10)?1:0;
   if(_prevFakes>1&&_bonusRoll<0.06)SH.bonusWave=2; // 6% chance of DOUBLE fake
   SH.totalWaves+=SH.bonusWave; // add 1 or 2 bonus waves silently
-  // ── end probably temporary ──────────────────────────────────────────────────
+  // -- end probably temporary --------------------------------------------------
   SH.zombies=[];SH.bullets=[];SH.sparks=[];
   SH.firing=false;SH.shootTimer=0;SH.flashTimer=0;SH.currency=0;SH.paused=false;
   // Load inventory
@@ -1083,6 +1175,9 @@ function mkZombie(forceType){
   return{x:-60,y:SH.groundY,speed,
     hp,maxHp:hp,sz,type:typeRoll,
     state:'walk',anim:Math.random()*Math.PI*2,
+    groanTimer:2000+Math.random()*6000, // ms until next groan
+    isPrank:Math.random()<0.015, // 1.5% chance of prank zombie
+    prankReveal:false,prankTimer:0,phaseOff:Math.random(), // reveal state + look seed
     atkTimer:0,atkRate:(typeRoll==='heavy'?2800:1500)/Math.sqrt(diff),
     dmg,targetBoard:null,dying:0,wobble:(Math.random()-.5)*.12,look,
     crawling:typeRoll==='crawler',groundY:SH.groundY,
@@ -1216,8 +1311,18 @@ function updateShooter(dt){
 function updateZombies(dt){
   for(let i=SH.zombies.length-1;i>=0;i--){
     const z=SH.zombies[i];z.anim+=dt*.0038;
+    // Groan tick - only walking or attacking zombies make noise
+    if(z.state==='walk'||z.state==='attack'){
+      z.groanTimer-=dt;
+      if(z.groanTimer<=0){
+        sndZombieGroan();
+        z.groanTimer=3000+Math.random()*7000; // 3-10s between groans
+      }
+    }
+    // Prank reveal tick
+    if(z.prankReveal){z.prankTimer+=dt;}
     if(z.state==='dead'){SH.zombies.splice(i,1);continue;}
-    if(z.state==='dying'){z.dying+=dt;if(z.dying>800)z.state='dead';continue;}
+    if(z.state==='dying'){z.dying+=dt;if(z.dying>(z.isPrank?3800:800))z.state='dead';continue;}
     if(z.state==='walk'){
       z.x+=z.speed*dt/1000;
       // Crawlers hug the ground
@@ -1265,11 +1370,15 @@ function updateBullets(dt){
           z.hp-=_dmg;spawnBlood(b.x,b.y,b.vx,b.vy);
         } else {
         z.hp-=_dmg;spawnBlood(b.x,b.y,b.vx,b.vy);if(z.hp<=0){z.state='dying';
-          // ── reward: currency per kill ──────────────────────────────────────
+          // -- reward: currency per kill --------------------------------------
           SH.currency+=Math.round(30+Math.random()*44); // <- $30-$74 per kill (-26%)
-          // ── end reward: currency per kill ─────────────────────────────────
+          // -- end reward: currency per kill ---------------------------------
           const _fe=document.getElementById('sh-funds-v');if(_fe)_fe.textContent='$'+SH.currency.toLocaleString();
           sndZombieDie();
+          if(z.isPrank&&!z.prankReveal){
+            z.prankReveal=true;z.prankTimer=0;
+            z.state='dying';z.dying=0; // reset dying timer so prank plays out
+          }
           addStat('kills',1);
           if(z.isBoss)addStat('bossKills',1);
         }
@@ -1301,7 +1410,7 @@ function updateFallenBoards(dt){
   }
 }
 
-// ══ SHOOTER DRAWING ══
+// == SHOOTER DRAWING ==
 function drawShooter(ts){
   const ctx=shX;ctx.clearRect(0,0,W,H);
   const gY=SH.groundY,bX=SH.barricadeX;
@@ -1326,7 +1435,7 @@ function drawShooter(ts){
   // Ground blood
   ctx.fillStyle='rgba(35,5,5,.4)';for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(bX-55-i*18,gY+5,9+i*3,4,-.15,0,Math.PI*2);ctx.fill();}
 
-  // ══ BARRICADE ══
+  // == BARRICADE ==
   // Fallen boards (physics animation)
   for(const fb of SH.fallenBoards){ctx.save();ctx.globalAlpha=Math.max(0,fb.alpha);ctx.translate(fb.x,fb.y);ctx.rotate(fb.rot);ctx.fillStyle=fb.col;ctx.fillRect(-fb.w/2,-fb.h/2,fb.w,fb.h);ctx.strokeStyle='rgba(10,6,2,.6)';ctx.lineWidth=1;ctx.strokeRect(-fb.w/2,-fb.h/2,fb.w,fb.h);ctx.restore();}
 
@@ -1375,17 +1484,17 @@ function drawShooter(ts){
     ctx.restore();
   }
 
-  // ══ SPARKS (blood, wood, shells) ══
+  // == SPARKS (blood, wood, shells) ==
   for(const p of SH.sparks){
     const a=Math.max(0,p.life);
     if(p.type==='shell'){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.col+a.toFixed(2)+')';ctx.fillRect(-p.sz,-p.sz*.4,p.sz*2,p.sz*.8);ctx.restore();}
     else{ctx.fillStyle=p.col+a.toFixed(2)+')';ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);ctx.fill();}
   }
 
-  // ══ ZOMBIES ══
+  // == ZOMBIES ==
   for(const z of SH.zombies) drawZombie(shX, z, ts);
 
-  // ══ PLAYER ══
+  // == PLAYER ==
   const px=SH.playerX,py=SH.playerY;
   const aimAngle=Math.atan2(SH.mouseY-(py-38),SH.mouseX-px);
   ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(px,py,12,4,0,0,Math.PI*2);ctx.fill();
@@ -1427,7 +1536,7 @@ function drawShooter(ts){
     ctx.fillText('R',px,py-64);
   }
 
-  // ══ BULLETS ══
+  // == BULLETS ==
   for(const b of SH.bullets){const ba=Math.atan2(b.vy,b.vx);ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ba);const bg=ctx.createLinearGradient(-14,0,6,0);bg.addColorStop(0,'rgba(255,220,80,0)');bg.addColorStop(1,'rgba(255,240,140,.9)');ctx.fillStyle=bg;ctx.fillRect(-14,-1.5,20,3);ctx.restore();}
 
   // MELEE FLASH
@@ -1507,7 +1616,7 @@ function drawShooter(ts){
   ctx.fillStyle='rgba(0,0,0,.05)';for(let y=0;y<H;y+=3)ctx.fillRect(0,y,W,1);
 }
 
-// ══ HUMAN ZOMBIE DRAWING ══
+// == HUMAN ZOMBIE DRAWING ==
 function drawZombie(ctx, z){
   if(z.state==='dead')return;
   const zType=z.type||'normal';
@@ -1520,10 +1629,108 @@ function drawZombie(ctx, z){
   const bob=isAtk?0:Math.abs(Math.sin(z.anim*9))*1.8*s;
 
   ctx.save();
-  ctx.translate(z.x, z.crawling ? z.groundY+10 : z.y);
-  const crawlRot=z.crawling ? Math.PI*0.42 : 0; // tipped forward on ground
-  ctx.rotate(dieRot+z.wobble+crawlRot);ctx.globalAlpha=alpha;
+  ctx.translate(z.x, z.crawling ? z.groundY+4 : z.y);
+  ctx.rotate(dieRot+z.wobble);ctx.globalAlpha=alpha;
 
+  // CRAWLER: true side-view prone figure - drawn as a proper 2D character
+  if(z.crawling){
+    const cr=z.anim; // use anim cycle for limb movement
+    const crawlBob=Math.sin(cr*5)*1.5*s; // slight vertical wobble
+
+    // elongated ground shadow
+    ctx.fillStyle='rgba(0,0,0,.22)';
+    ctx.beginPath();ctx.ellipse(0,2+crawlBob,30*s,4*s,0,0,Math.PI*2);ctx.fill();
+
+    // ── back leg (trailing, bent at knee) ──
+    // thigh
+    ctx.strokeStyle=`rgb(${L.p[0]},${L.p[1]},${L.p[2]})`;
+    ctx.lineWidth=6*s;ctx.lineCap='round';
+    const backKneeX=12*s,backKneeY=-5*s+crawlBob;
+    ctx.beginPath();ctx.moveTo(18*s,-2*s+crawlBob);ctx.lineTo(backKneeX,backKneeY);ctx.stroke();
+    // shin
+    ctx.beginPath();ctx.moveTo(backKneeX,backKneeY);ctx.lineTo(22*s,4*s+crawlBob);ctx.stroke();
+
+    // ── front leg (pushing) ──
+    const frontKneeX=4*s,frontKneeY=-9*s+crawlBob;
+    ctx.beginPath();ctx.moveTo(8*s,-2*s+crawlBob);ctx.lineTo(frontKneeX,frontKneeY);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(frontKneeX,frontKneeY);ctx.lineTo(-4*s,2*s+crawlBob);ctx.stroke();
+    // foot
+    ctx.strokeStyle=`rgb(${L.k[0]},${L.k[1]},${L.k[2]})`;ctx.lineWidth=4*s;
+    ctx.beginPath();ctx.moveTo(-4*s,2*s+crawlBob);ctx.lineTo(-10*s,3*s+crawlBob);ctx.stroke();
+
+    // ── torso (side-on, slightly angled forward) ──
+    ctx.fillStyle=`rgb(${L.s[0]},${L.s[1]},${L.s[2]})`;
+    ctx.beginPath();
+    ctx.moveTo(-18*s,-12*s+crawlBob);  // shoulder
+    ctx.lineTo(10*s,-4*s+crawlBob);    // hip back
+    ctx.lineTo(10*s,2*s+crawlBob);     // hip front
+    ctx.lineTo(-16*s,-6*s+crawlBob);   // chest front
+    ctx.closePath();ctx.fill();
+
+    // ── trailing arm (dragging behind) ──
+    ctx.strokeStyle=`rgb(${L.k[0]},${L.k[1]},${L.k[2]})`;ctx.lineWidth=5*s;ctx.lineCap='round';
+    const trailElbow=14*s+Math.sin(cr*5)*3*s;
+    ctx.beginPath();ctx.moveTo(6*s,-8*s+crawlBob);ctx.lineTo(trailElbow,-3*s+crawlBob);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(trailElbow,-3*s+crawlBob);ctx.lineTo(20*s,-2*s+crawlBob);ctx.stroke();
+
+    // ── reaching arm (lunging forward, animated) ──
+    const reachX=-38*s+Math.sin(cr*5+1)*4*s;
+    const reachElbow=-20*s;
+    ctx.strokeStyle=`rgb(${L.k[0]},${L.k[1]},${L.k[2]})`;ctx.lineWidth=5*s;
+    ctx.beginPath();ctx.moveTo(-18*s,-10*s+crawlBob);ctx.lineTo(reachElbow,-18*s+crawlBob);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(reachElbow,-18*s+crawlBob);ctx.lineTo(reachX,-12*s+crawlBob);ctx.stroke();
+    // hand (clawing)
+    ctx.fillStyle=`rgb(${L.k[0]},${L.k[1]},${L.k[2]})`;
+    ctx.beginPath();ctx.ellipse(reachX,-12*s+crawlBob,6*s,4*s,-0.5,0,Math.PI*2);ctx.fill();
+    // finger claws
+    ctx.strokeStyle=`rgb(${Math.max(0,L.k[0]-40)},${Math.max(0,L.k[1]-40)},${Math.max(0,L.k[2]-40)})`;
+    ctx.lineWidth=1.5*s;
+    for(let fi=0;fi<3;fi++){
+      const fx=reachX-6*s+fi*4*s,fy=-12*s+crawlBob;
+      ctx.beginPath();ctx.moveTo(fx,fy-3*s);ctx.lineTo(fx-3*s,fy-9*s);ctx.stroke();
+    }
+
+    // ── head (side profile facing left) ──
+    // neck
+    ctx.fillStyle=`rgb(${L.k[0]},${L.k[1]},${L.k[2]})`;
+    ctx.beginPath();ctx.ellipse(-20*s,-15*s+crawlBob,5*s,4*s,-0.4,0,Math.PI*2);ctx.fill();
+    // skull
+    ctx.beginPath();ctx.ellipse(-26*s,-22*s+crawlBob,10*s,9*s,0.1,0,Math.PI*2);ctx.fill();
+    // jaw (lower, hanging open)
+    ctx.fillStyle=`rgb(${Math.max(0,L.k[0]-20)},${Math.max(0,L.k[1]-20)},${Math.max(0,L.k[2]-20)})`;
+    ctx.beginPath();ctx.ellipse(-27*s,-17*s+crawlBob,7*s,5*s,0.4,0,Math.PI*2);ctx.fill();
+    // hair
+    ctx.fillStyle=`rgb(${L.h[0]},${L.h[1]},${L.h[2]})`;
+    ctx.beginPath();ctx.ellipse(-27*s,-27*s+crawlBob,10*s,6*s,-0.1,0,Math.PI*2);ctx.fill();
+    // eye - single side-profile eye, red glow
+    ctx.fillStyle='rgba(200,10,10,.95)';
+    ctx.shadowColor='rgba(200,0,0,.7)';ctx.shadowBlur=6*s;
+    ctx.beginPath();ctx.ellipse(-31*s,-22*s+crawlBob,3*s,2.5*s,0.2,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    // pupil
+    ctx.fillStyle='rgba(255,180,100,.6)';
+    ctx.beginPath();ctx.arc(-31*s,-22*s+crawlBob,1.2*s,0,Math.PI*2);ctx.fill();
+    // teeth (a couple showing from open jaw)
+    ctx.fillStyle='rgba(230,215,190,.9)';
+    ctx.fillRect(-30*s,-18*s+crawlBob,3*s,3*s);
+    ctx.fillRect(-26*s,-18*s+crawlBob,3*s,4*s);
+
+    // ── HP bar ──
+    if(z.hp<z.maxHp){
+      const bw=30*s,hpR=z.hp/z.maxHp;
+      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(-15*s,-38*s,bw,3.5*s);
+      ctx.fillStyle=hpR>.6?'rgba(45,175,38,.9)':hpR>.3?'rgba(195,145,18,.9)':'rgba(200,28,28,.9)';
+      ctx.fillRect(-15*s,-38*s,bw*hpR,3.5*s);
+    }
+    if(zType==='crawler'){
+      ctx.font=`${Math.max(6,6*s)}px Oswald,sans-serif`;ctx.textAlign='center';
+      ctx.fillStyle='rgba(20,185,120,.65)';ctx.fillText('CRAWLER',-8*s,-44*s);
+    }
+    ctx.restore();
+    return;
+  }
+
+  // Normal / runner / heavy upright draw below:
   // Shadow
   ctx.fillStyle='rgba(0,0,0,.26)';ctx.beginPath();ctx.ellipse(0,0,13*s,4*s,0,0,Math.PI*2);ctx.fill();
 
@@ -1625,13 +1832,116 @@ function drawZombie(ctx, z){
   if(zType!=='normal'){
     const badge=zType==='heavy'?'HEAVY':zType==='runner'?'RUNNER':'CRAWLER';
     const badgeCol=zType==='heavy'?'rgba(200,80,20,.85)':zType==='runner'?'rgba(200,185,20,.85)':'rgba(20,185,120,.85)';
-    ctx.font=;ctx.textAlign='center';
+    ctx.font=`${Math.max(6,7*s)}px Oswald,sans-serif`;ctx.textAlign='center';
     ctx.fillStyle=badgeCol;ctx.fillText(badge,0,-98*s);
   }
-  if(z.crawling&&zType!=='crawler'){
-    ctx.font=;ctx.textAlign='center';
-    ctx.fillStyle='rgba(20,160,100,.7)';ctx.fillText('crawling',0,-106*s);
+  // (crawling label handled in early return above)
+  // ── PRANK REVEAL ────────────────────────────────────────────────────────────
+  if(z.prankReveal&&z.state==='dying'){
+    // Reveal fades in over first 400ms, holds for 2.6s, then fades out over last 800ms
+    const HOLD=3800; // matches dying duration
+    const fadeIn=Math.min(1,z.prankTimer/400);
+    const fadeOut=z.prankTimer>3000?Math.max(0,1-(z.prankTimer-3000)/800):1;
+    const revAlpha=fadeIn*fadeOut;
+    if(revAlpha<=0.01){ctx.restore();return;}
+
+    ctx.save();
+    // Reset rotation so survivor stands upright while dying zombie falls
+    ctx.rotate(-dieRot-z.wobble);
+    ctx.globalAlpha=revAlpha;
+
+    const svLook=ZLOOKS[Math.floor(z.phaseOff*ZLOOKS.length)||0];
+    const ss=Math.max(s,0.85); // slightly bigger than zombie for clarity
+
+    // Body
+    ctx.fillStyle=`rgb(${Math.min(255,svLook.s[0]+50)},${Math.min(255,svLook.s[1]+40)},${Math.min(255,svLook.s[2]+30)})`;
+    ctx.beginPath();ctx.moveTo(-13*ss,-52*ss);ctx.lineTo(13*ss,-52*ss);ctx.lineTo(10*ss,-22*ss);ctx.lineTo(-10*ss,-22*ss);ctx.closePath();ctx.fill();
+
+    // Neck
+    ctx.fillStyle=`rgb(${Math.min(255,svLook.k[0]+25)},${Math.min(255,svLook.k[1]+18)},${Math.min(255,svLook.k[2]+12)})`;
+    ctx.fillRect(-4*ss,-60*ss,8*ss,10*ss);
+
+    // Head
+    ctx.beginPath();ctx.ellipse(0,-72*ss,11*ss,13*ss,0,0,Math.PI*2);ctx.fill();
+
+    // Hair
+    ctx.fillStyle=`rgb(${svLook.h[0]},${svLook.h[1]},${svLook.h[2]})`;
+    ctx.beginPath();ctx.ellipse(0,-80*ss,11*ss,7*ss,0,0,Math.PI*2);ctx.fill();
+    ctx.fillRect(-11*ss,-80*ss,22*ss,8*ss);
+
+    // Scared wide eyes
+    ctx.fillStyle='rgba(255,255,255,.97)';
+    ctx.beginPath();ctx.ellipse(-5*ss,-73*ss,4*ss,3.5*ss,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(5*ss,-73*ss,4*ss,3.5*ss,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(55,35,15,.95)';
+    ctx.beginPath();ctx.arc(-5*ss,-73*ss,2.2*ss,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(5*ss,-73*ss,2.2*ss,0,Math.PI*2);ctx.fill();
+    // Shine dots
+    ctx.fillStyle='rgba(255,255,255,.8)';
+    ctx.beginPath();ctx.arc(-4*ss,-74*ss,0.8*ss,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(6*ss,-74*ss,0.8*ss,0,Math.PI*2);ctx.fill();
+
+    // Raised hands (surrender / panic pose)
+    ctx.fillStyle=`rgb(${Math.min(255,svLook.k[0]+25)},${Math.min(255,svLook.k[1]+18)},${Math.min(255,svLook.k[2]+12)})`;
+    ctx.fillRect(-22*ss,-68*ss,8*ss,20*ss);
+    ctx.fillRect(14*ss,-68*ss,8*ss,20*ss);
+    ctx.beginPath();ctx.arc(-18*ss,-70*ss,5*ss,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(18*ss,-70*ss,5*ss,0,Math.PI*2);ctx.fill();
+
+    // ── Speech bubble - drawn in SCREEN SPACE so it's always big/readable ──
+    // Convert zombie position to screen coords for the bubble
+    ctx.restore(); // pop to pre-survivor save
+    ctx.save();
+    ctx.globalAlpha=revAlpha;
+    ctx.resetTransform(); // world coords -> screen coords
+
+    // figure out where the zombie head is in screen space
+    const headSX=z.x;
+    const headSY=(z.crawling?z.groundY+4:z.y)-(z.sz||1)*72;
+
+    const bFont=14; // px fixed size bubble text
+    const bPad=10;
+    const bText="its just a prank bro...";
+    // measure text width
+    ctx.font=`bold ${bFont}px 'Special Elite',cursive`;
+    const bTW=ctx.measureText(bText).width;
+    const bW=bTW+bPad*2;
+    const bH=bFont+bPad*2;
+    const bX=headSX+18;
+    const bY=headSY-bH-14;
+    const bR=6;
+
+    // bubble background
+    ctx.fillStyle='rgba(255,252,235,.97)';
+    ctx.strokeStyle='rgba(70,50,20,.75)';
+    ctx.lineWidth=1.8;
+    ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=8;
+    ctx.beginPath();
+    ctx.moveTo(bX+bR,bY);ctx.lineTo(bX+bW-bR,bY);
+    ctx.arcTo(bX+bW,bY,bX+bW,bY+bR,bR);
+    ctx.lineTo(bX+bW,bY+bH-bR);
+    ctx.arcTo(bX+bW,bY+bH,bX+bW-bR,bY+bH,bR);
+    ctx.lineTo(bX+bR,bY+bH);
+    ctx.arcTo(bX,bY+bH,bX,bY+bH-bR,bR);
+    ctx.lineTo(bX,bY+bR);
+    ctx.arcTo(bX,bY,bX+bR,bY,bR);
+    ctx.closePath();
+    ctx.fill();ctx.stroke();
+    ctx.shadowBlur=0;
+
+    // tail
+    ctx.fillStyle='rgba(255,252,235,.97)';
+    ctx.strokeStyle='rgba(70,50,20,.55)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(bX+12,bY+bH);ctx.lineTo(bX+2,bY+bH+12);ctx.lineTo(bX+22,bY+bH);ctx.closePath();ctx.fill();ctx.stroke();
+
+    // text
+    ctx.fillStyle='rgba(35,20,8,.95)';
+    ctx.font=`bold ${bFont}px 'Special Elite',cursive`;
+    ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.fillText(bText,bX+bPad,bY+bH/2);
+    ctx.textBaseline='alphabetic';
   }
+  // ── END PRANK REVEAL ─────────────────────────────────────────────────────────
   ctx.restore();
 }
 
@@ -1639,7 +1949,7 @@ function updateShooterHUD(){
   const hpR=SH.barHP/SH.barMaxHP;
   const fill=document.getElementById('sh-bar-fill');
   fill.style.width=(hpR*100)+'%';fill.style.background=hpR>.6?'#4a9a30':hpR>.3?'#9a8020':'#9a2020';
-  // ── probably temporary ──────────────────────────────────────────────────────
+  // -- probably temporary ------------------------------------------------------
   const _bonusOffset=SH.bonusWave||0;
   const _realTotal=SH.totalWaves-_bonusOffset;
   const _hasBoss=SH.zombies.some(z=>z.isBoss&&(z.state==='walk'||z.state==='attack'));
@@ -1651,14 +1961,14 @@ function updateShooterHUD(){
     _isBonusWave?'FINAL WAVE!!':
     `WAVE ${SH.wave} / ${_realTotal}`;
   document.getElementById('sh-wave-lbl').style.color=_hasBoss?'#cc3010':'';
-  // ── end probably temporary ──────────────────────────────────────────────────
+  // -- end probably temporary --------------------------------------------------
   const msg=document.getElementById('sh-msg'),sub=document.getElementById('sh-sub-msg');
   updateWeaponHUD();updateGrenadeHUD();
   const _pb=document.getElementById('sh-pause-btn');
   const _rb=document.getElementById('sh-retreat-btn');
   if(SH.paused){
     msg.textContent='PAUSED';msg.style.color='#506878';msg.className='sh-msg show';
-    sub.textContent='ESC or tap ❚❚ to resume';sub.className='sh-sub-msg show';
+    sub.textContent='ESC or tap ?? to resume';sub.className='sh-sub-msg show';
     if(_rb)_rb.className='sh-retreat-btn show';
     if(_pb){_pb.innerHTML='&#9654; RESUME';_pb.style.color='#4a8040';_pb.style.borderColor='#1a4020';}
     return;
@@ -1677,14 +1987,14 @@ function updateShooterHUD(){
   }
   else if(SH.phase==='between'){
     const secs=Math.max(0,Math.ceil(SH.phaseTimer/1000));
-    // ── probably temporary ──────────────────────────────────────────────────────
+    // -- probably temporary ------------------------------------------------------
     const _nextIsFinal=SH.bonusWave&&(SH.wave+1===SH.totalWaves);
     msg.textContent='WAVE CLEARED';msg.style.color='#4a9020';msg.className='sh-msg show';
     sub.textContent=_nextIsFinal
       ?`FINAL WAVE incoming in ${secs}s...`
       :`Barricade rebuilt. Wave ${SH.wave+1} incoming in ${secs}s`;
     sub.className='sh-sub-msg show';
-    // ── end probably temporary ──────────────────────────────────────────────────
+    // -- end probably temporary --------------------------------------------------
   }
   else if(SH.phase==='win'){const _wSave=loadSave();const _wP=(_wSave.zones&&_wSave.zones[SH.zone.name]&&_wSave.zones[SH.zone.name].personnel)||0;msg.textContent='ZONE SECURED';msg.style.color='#38a040';msg.className='sh-msg show';sub.textContent=SH.zone.name+' - +1200 personnel ('+_wP.toLocaleString()+' total)';sub.className='sh-sub-msg show';}
   else if(SH.phase==='lose'){msg.textContent='BARRICADE BREACHED';msg.style.color='#9a2020';msg.className='sh-msg show';sub.textContent=SH.zone.name+' is lost. Difficulty increased.';sub.className='sh-sub-msg show';}
@@ -1699,14 +2009,14 @@ function endShooter(won){
   const existing = save.zones[name] || {};
 
   if(won){
-    // ── reward ──────────────────────────────────────────────────────────────
+    // -- reward --------------------------------------------------------------
     const mult = existing.difficulty || 1.0;
 
     // Personnel: flat +500 per win, stacked onto whatever the zone currently holds.
-    // zoneMax scales 1,000–10,000 with zone population (t=0..1).
+    // zoneMax scales 1,000-10,000 with zone population (t=0..1).
     const _tod=getTimeOfDay();
     const PERSONNEL_PER_WIN = Math.round(1200 * (_tod.isDay ? 1.15 : 1.0)); // <- day:+15%
-    const zoneMax        = Math.round(1000 + SH.zone.t * 9000); // <- zone capacity ceiling (1k–10k)
+    const zoneMax        = Math.round(1000 + SH.zone.t * 9000); // <- zone capacity ceiling (1k-10k)
     const prevPersonnel  = (existing.status === 'cleared') ? (existing.personnel || 0) : 0;
     const newPersonnel   = Math.min(zoneMax, prevPersonnel + PERSONNEL_PER_WIN);
 
@@ -1727,7 +2037,7 @@ function endShooter(won){
     save.zones[name] = { ...existing, status: 'cleared', personnel: newPersonnel, clearedAt: Date.now() };
   addStat('fightsWon',1);addStat('fundsEarned',SH.currency);
   addLog('fight-win',`<b>${SH.zone.name}</b> defended - +${newPersonnel-prevPersonnel} personnel, +$${SH.currency}`);
-    // ── end reward ──────────────────────────────────────────────────────────
+    // -- end reward ----------------------------------------------------------
   } else {
     // Zone lost: reset to original color and difficulty
     save.zones[name] = { status: 'active', difficulty: 1.0 };
@@ -1748,7 +2058,7 @@ function endShooter(won){
   goTo('map');
 }
 
-// ══ SHOP + INVENTORY ══
+// == SHOP + INVENTORY ==
 function getShopPriceMod(){
   const tod=getTimeOfDay();
   if(tod.isDay){
@@ -1768,9 +2078,9 @@ function renderShop(){
   const priceMod=getShopPriceMod();
   const tod=getTimeOfDay();
   const priceLabel=priceMod<0.995
-    ?`<span style="color:#4a9040;font-size:.5rem;letter-spacing:.08em;">▼ ${Math.round((1-priceMod)*100)}% DAY DISCOUNT</span>`
+    ?`<span style="color:#4a9040;font-size:.5rem;letter-spacing:.08em;">? ${Math.round((1-priceMod)*100)}% DAY DISCOUNT</span>`
     :priceMod>1.005
-    ?`<span style="color:#9a3020;font-size:.5rem;letter-spacing:.08em;">▲ ${Math.round((priceMod-1)*100)}% NIGHT MARKUP</span>`
+    ?`<span style="color:#9a3020;font-size:.5rem;letter-spacing:.08em;">? ${Math.round((priceMod-1)*100)}% NIGHT MARKUP</span>`
     :'';
   const grid=document.getElementById('shop-grid');
   // Insert time label at top
@@ -1898,9 +2208,9 @@ function renderInventory(){
       const e0=inv.equipped[0]===wid,e1=inv.equipped[1]===wid;
       return `<div class="inv-weapon-row">
         <div class="inv-weapon-name">${w.label}</div>
-        <span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#2a3020;letter-spacing:.06em;flex:1;">DMG:${w.dmg==='9999'?'∞':w.dmg} | ${w.auto?'AUTO':'SEMI'} | ${w.rate}ms</span>
-        <button class="inv-equip-btn ${e0?'equipped':''}" onclick="invEquip('${wid}',0)">${e0?'★ SLOT 1':'SLOT 1'}</button>
-        <button class="inv-equip-btn ${e1?'equipped':''}" onclick="invEquip('${wid}',1)">${e1?'★ SLOT 2':'SLOT 2'}</button>
+        <span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#2a3020;letter-spacing:.06em;flex:1;">DMG:${w.dmg==='9999'?'?':w.dmg} | ${w.auto?'AUTO':'SEMI'} | ${w.rate}ms</span>
+        <button class="inv-equip-btn ${e0?'equipped':''}" onclick="invEquip('${wid}',0)">${e0?'? SLOT 1':'SLOT 1'}</button>
+        <button class="inv-equip-btn ${e1?'equipped':''}" onclick="invEquip('${wid}',1)">${e1?'? SLOT 2':'SLOT 2'}</button>
       </div>`;
     }).join('')}`;
 
@@ -2115,7 +2425,7 @@ function updateGrenadeHUD(){
   if(btn){btn.disabled=SH.grenades<=0||SH.phase!=='wave'||SH.grenadeCook>0;btn.style.color=SH.grenadeCook>0?'#a07010':'#6a8020';}
 }
 
-// ══ SEARCH SYSTEM ══
+// == SEARCH SYSTEM ==
 let srchAlloc={};  // {typeId: count} - in-progress allocation in the search UI
 
 function countClearedZones(){
@@ -2210,18 +2520,18 @@ function showSearchNotify(){
   if(!s.pendingSearchResults||!s.pendingSearchResults.length)return;
   const el=document.getElementById('srch-notify-content');
   el.innerHTML=s.pendingSearchResults.map(r=>{
-    if(r.nothing)return`<div class="sn-result nothing">🔍 <b>${r.label}</b> - Nothing found.</div>`;
+    if(r.nothing)return`<div class="sn-result nothing">? <b>${r.label}</b> - Nothing found.</div>`;
     const parts=[];
     if(r.gains.funds)parts.push(`<b>$${r.gains.funds.toLocaleString()}</b>`);
     if(r.gains.ammoBoxes)parts.push(`<b>${r.gains.ammoBoxes} ammo box${r.gains.ammoBoxes>1?'es':''}</b>`);
     if(r.gains.survivors)parts.push(`<b>${r.gains.survivors} survivor${r.gains.survivors>1?'s':''}</b>`);
     if(r.gains.personnel)parts.push(`<b>${r.gains.personnel.toLocaleString()} personnel</b> (split across zones)`);
-    return`<div class="sn-result">🔍 <b>${r.label}</b> - Found: ${parts.join(', ')}.</div>`;
+    return`<div class="sn-result">? <b>${r.label}</b> - Found: ${parts.join(', ')}.</div>`;
   }).join('');
-  document.getElementById('srch-notify').style.display='flex';
+  const _sn=document.getElementById('srch-notify');_sn.style.display='flex';_sn.style.pointerEvents='all';
 }
 function dismissSearchNotify(){
-  document.getElementById('srch-notify').style.display='none';
+  const _sn2=document.getElementById('srch-notify');_sn2.style.display='none';_sn2.style.pointerEvents='none';
   const s=loadSave();delete s.pendingSearchResults;writeSave(s);
   updateMapStats();
 }
@@ -2244,7 +2554,7 @@ function renderSearchScreen(){
       <div class="srch-type-name">${t.icon} ${t.label}</div>
       <div class="srch-type-desc">${t.desc}</div>
       <div class="srch-counter">
-        <div class="srch-adj" onclick="srchAdj('${t.id}',-1)">−</div>
+        <div class="srch-adj" onclick="srchAdj('${t.id}',-1)">?</div>
         <div class="srch-count-lbl">${cnt}</div>
         <div class="srch-adj" onclick="srchAdj('${t.id}',1)">+</div>
       </div>
@@ -2280,7 +2590,7 @@ function commitSearches(){
   goTo('map');
 }
 
-// ══ STATE MACHINE ══
+// == STATE MACHINE ==
 function goTo(newState){
   appState=newState;
   ['s-menu','s-mode','s-map','s-shooter','s-shop','s-inv','s-search','s-log','s-stats'].forEach(id=>document.getElementById(id).classList.add('off'));
@@ -2291,12 +2601,12 @@ function goTo(newState){
   document.getElementById('red-flash').style.opacity='0';document.getElementById('alert-lbl').style.opacity='0';
   mapC.style.opacity='0';
   shC.style.opacity='0';shC.style.pointerEvents='none';
-  document.getElementById('map-ctrl').style.display='none';
+  const _mc2=document.getElementById('map-ctrl');_mc2.style.display='none';_mc2.style.pointerEvents='none';
   document.getElementById('map-clock').style.display='none';
   hovCity=null;
   if(newState==='menu'){document.getElementById('s-menu').classList.remove('off');bgC.style.opacity='1';animC.style.opacity='1';document.getElementById('overlay').style.opacity='1';}
   else if(newState==='mode'){document.getElementById('s-mode').classList.remove('off');bgC.style.opacity='1';animC.style.opacity='1';document.getElementById('overlay').style.opacity='1';}
-  else if(newState==='map'){document.getElementById('s-map').classList.remove('off');document.getElementById('map-ctrl').style.display='flex';document.getElementById('map-clock').style.display='block';bakeProjections();mapC.style.opacity='1';updateMapStats();setTimeout(showSearchNotify,350);}
+  else if(newState==='map'){document.getElementById('s-map').classList.remove('off');const _mc=document.getElementById('map-ctrl');_mc.style.display='flex';_mc.style.pointerEvents='all';document.getElementById('map-clock').style.display='block';bakeProjections();mapC.style.opacity='1';updateMapStats();setTimeout(showSearchNotify,350);}
   else if(newState==='shooter'){document.getElementById('s-shooter').classList.remove('off');shC.style.opacity='1';shC.style.pointerEvents='all';const _spb=document.getElementById('sh-pause-btn');if(_spb)_spb.style.display='flex';}
   else if(newState==='shop'){document.getElementById('s-shop').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderShop();}
   else if(newState==='inventory'){document.getElementById('s-inv').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderInventory();}
@@ -2305,7 +2615,7 @@ function goTo(newState){
   else if(newState==='stats'){document.getElementById('s-stats').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderStats();}
 }
 
-// ══ MAP INTERACTIONS ══
+// == MAP INTERACTIONS ==
 const tip=document.getElementById('map-tip');
 const mapHit=document.getElementById('map-hit');
 mapHit.addEventListener('pointermove',e=>{e.preventDefault();
@@ -2346,7 +2656,7 @@ mapHit.addEventListener('pointermove',e=>{e.preventDefault();
 mapHit.addEventListener('pointerleave',()=>{hovCity=null;tip.style.display='none';mapHit.style.cursor='crosshair';});
 mapHit.addEventListener('pointerup',()=>{if(!hovCity)return;const z=hovCity;tip.style.display='none';initShooter(z);goTo('shooter');});
 
-// ══ SHOOTER INPUTS ══
+// == SHOOTER INPUTS ==
 shC.addEventListener('pointermove',e=>{e.preventDefault();SH.mouseX=e.clientX;SH.mouseY=e.clientY;},{passive:false});
 shC.addEventListener('pointerdown',e=>{
   e.preventDefault();
@@ -2363,7 +2673,7 @@ shC.addEventListener('pointerdown',e=>{
 shC.addEventListener('pointerup',()=>{SH.firing=false;});
 shC.addEventListener('pointercancel',()=>{SH.firing=false;});
 
-// ══ KEYBOARD SHORTCUTS ══
+// == KEYBOARD SHORTCUTS ==
 document.addEventListener('keydown', e => {
   if(e.key==='1'){if(appState==='shooter')SH_switchSlot(0);}
   else if(e.key==='2'){if(appState==='shooter')SH_switchSlot(1);}
@@ -2382,7 +2692,7 @@ document.addEventListener('keydown', e => {
 });
 
 
-// ══ BUTTONS ══
+// == BUTTONS ==
 document.getElementById('b-new').addEventListener('click',()=>goTo('mode'));
 document.getElementById('b-cont').addEventListener('click',()=>goTo('map'));
 document.getElementById('b-shop').addEventListener('click',()=>goTo('shop'));
@@ -2407,7 +2717,7 @@ document.getElementById('card-life').addEventListener('click',()=>{
 document.getElementById('b-map-back').addEventListener('click',()=>goTo('mode'));
 const _save=loadSave();if(Object.keys(_save.zones||{}).length||_save.funds||_save.inventory)document.getElementById('b-cont').disabled=false;
 
-// ══ MAIN LOOP ══
+// == MAIN LOOP ==
 function loop(ts){
   const dt=SH.paused?0:Math.min(ts-lastTs,50);lastTs=ts;
   if(appState==='map')drawMap(ts);
@@ -2417,8 +2727,9 @@ function loop(ts){
 }
 let rTimer;
 window.addEventListener('resize',()=>{clearTimeout(rTimer);rTimer=setTimeout(()=>{document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('touchstart',()=>{try{if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();}catch(e){}},{once:true,passive:true});
 document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+// iOS audio unlock on first touch
+document.addEventListener('touchstart',()=>{try{if(SND.ctx&&SND.ctx.state==='suspended')SND.ctx.resume();}catch(e){}},{once:true,passive:true});
 resize();buildBg();initPtcls();if(appState==='map')bakeProjections();if(appState==='shooter'){SH.groundY=H*.74;SH.barricadeX=W*.68;SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;}},150);});
 resize();buildBg();initPtcls();
 requestAnimationFrame(ts=>{lastTs=ts;loop(ts);});
