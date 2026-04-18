@@ -402,6 +402,17 @@ canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;trans
     </div>
   </div>
   <div id="map-clock" style="display:none;position:absolute;bottom:56px;left:1.2rem;z-index:51;pointer-events:none;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:#1e4028;letter-spacing:.2em;text-shadow:0 0 12px rgba(10,60,20,.4);"></div>
+  <!-- TUTORIAL BOX -->
+  <div id="tut-box" style="display:none;position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.72);align-items:center;justify-content:center;pointer-events:all;">
+    <div style="background:rgba(2,8,2,.97);border:1px solid #2a4020;border-top:3px solid #4a8030;padding:1.6rem 2rem;max-width:480px;width:90%;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#4a8030;letter-spacing:.28em;margin-bottom:.6rem;">HOW TO PLAY</div>
+      <div id="tut-text" style="font-family:'Special Elite',cursive;font-size:.75rem;color:#3a4828;letter-spacing:.06em;line-height:1.7;margin-bottom:1rem;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div id="tut-prog" style="font-family:'Special Elite',cursive;font-size:.6rem;color:#1e2818;letter-spacing:.1em;"></div>
+        <button onclick="advanceTutorial()" style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.22em;color:#4a7038;background:none;border:1px solid #2a4020;padding:.4em 1.6em;cursor:pointer;">NEXT</button>
+      </div>
+    </div>
+  </div>
   <div id="alert-lbl">&#11044; Emergency Alert Active</div>
   <div id="build-lbl">v0.1 &mdash; Day Zero Build</div>
 </div>
@@ -471,6 +482,17 @@ function playNoise(vol,dur,filter){
 }
 // Named sound effects - reworked for grit over goof
 function sndShoot(wid){
+  if(wid==='crossbow'){
+    if(SND.muted)return;
+    try{
+      const ctx=getSndCtx(),t=ctx.currentTime;
+      // Mechanical click + string snap - no bang
+      playNoise(.08,.04,'highpass');
+      playTone(280,'sine',.05,.001,.06,160); // string twang
+      setTimeout(()=>playTone(120,'sine',.04,.001,.08,60),40); // thud
+    }catch(e){}
+    return;
+  }
   if(SND.muted)return;
   try{
     const ctx=getSndCtx(),t=ctx.currentTime;
@@ -634,11 +656,15 @@ const RAW=[["Columbus",39.961,-82.999,905748],["Cleveland",41.499,-81.695,372624
 function tierOf(p){if(p<5000)return{label:"ISOLATED",hex:"#ffb4b4",desc:"Sparse infection. Low resources.",pct:.12};if(p<20000)return{label:"SCATTERED",hex:"#e06060",desc:"Small hordes. Some supplies.",pct:.32};if(p<50000)return{label:"INFESTED",hex:"#c03030",desc:"Dense undead. Scavenge carefully.",pct:.52};if(p<150000)return{label:"OVERRUN",hex:"#8a1010",desc:"Danger at every corner.",pct:.70};if(p<400000)return{label:"SIEGE",hex:"#550808",desc:"Massive horde territory.",pct:.86};return{label:"LOST CITY",hex:"#2c0404",desc:"Civilization is gone.",pct:1};}
 // == WEAPONS + SHOP ==
 const WEAPONS={
-  pistol:{label:'Pistol',      dmg:25,   rate:190,  auto:false,recoil:0,    speed:940,  mag:12, reloadMs:1400},
-  sniper:{label:'Sniper Rifle',dmg:28, rate:1800, auto:false,recoil:0,    speed:1400, mag:5,  reloadMs:3200},
-  ak47:  {label:'AK-47',       dmg:35,   rate:110,  auto:true, recoil:0.07, speed:1000, mag:30, reloadMs:2500},
-  mp5k:  {label:'MP5K',        dmg:18,   rate:65,   auto:true, recoil:0.035,speed:1100, mag:30, reloadMs:1800},
-  scar:  {label:'SCAR',        dmg:65,   rate:320,  auto:true, recoil:0.055,speed:980,  mag:20, reloadMs:2600},
+  pistol:  {label:'Pistol',       dmg:25,  rate:190,  auto:false,recoil:0,    speed:940,  mag:12, reloadMs:1400},
+  sniper:  {label:'Sniper Rifle', dmg:28,  rate:1800, auto:false,recoil:0,    speed:1400, mag:5,  reloadMs:3200},
+  ak47:    {label:'AK-47',        dmg:35,  rate:110,  auto:true, recoil:0.07, speed:1000, mag:30, reloadMs:2500},
+  mp5k:    {label:'MP5K',         dmg:18,  rate:65,   auto:true, recoil:0.035,speed:1100, mag:30, reloadMs:1800},
+  scar:    {label:'SCAR',         dmg:65,  rate:320,  auto:true, recoil:0.055,speed:980,  mag:20, reloadMs:2600},
+  shotgun: {label:'Shotgun',      dmg:22,  rate:750,  auto:false,recoil:0.15, speed:880,  mag:8,  reloadMs:2800, pellets:8},
+  revolver:{label:'Revolver',     dmg:90,  rate:900,  auto:false,recoil:0.02, speed:1200, mag:6,  reloadMs:3500},
+  lmg:     {label:'LMG',          dmg:28,  rate:80,   auto:true, recoil:0.12, speed:950,  mag:100,reloadMs:5000},
+  crossbow:{label:'Crossbow',     dmg:120, rate:2200, auto:false,recoil:0,    speed:1300, mag:1,  reloadMs:2000, pierce:2, silent:true},
 };
 const SHOP_ITEMS=[
   {id:'grenade', label:'Grenade',      price:330,  desc:'Thrown explosive. Max 7 carried.',     stack:true},
@@ -649,6 +675,10 @@ const SHOP_ITEMS=[
   {id:'survivor',    label:'Survivor',      price:10000, desc:'Recruit a survivor to your roster.',          stack:true},
   {id:'ammobox',     label:'Ammo Boxes (4)',price:400,  desc:'4 ammo boxes. Each holds 16 magazines.',      stack:true},
   {id:'bwire',       label:'Barbed Wire',   price:600,  desc:'Placed before wave. Slows & damages zombies. One use per fight.', stack:true},
+  {id:'shotgun',     label:'Shotgun',        price:4500, desc:'8 pellets, devastating close range, weak at distance.',           stack:false},
+  {id:'revolver',    label:'Revolver',       price:5500, desc:'6 shots, very high damage, slow reload. One-shots most zombies.', stack:false},
+  {id:'lmg',         label:'LMG',            price:18000,desc:'100-round belt. Sustained full-auto. Heavy recoil buildup.',      stack:false},
+  {id:'crossbow',    label:'Crossbow',       price:9000, desc:'Silent. 1 bolt per reload. Pierces 3 zombies. Lethal headshots.', stack:false},
 ];
 
 // == TIME OF DAY ==
@@ -791,10 +821,18 @@ function getZoneUpgrades(zoneName){return getZoneData(zoneName).upgrades||{};}
 function hasUpgrade(zoneName,upId){return !!(getZoneUpgrades(zoneName)[upId]);}
 
 const ZONE_UPGRADES=[
-  {id:'watchtower', label:'Watchtower',  cost:5000,  desc:'Reveals adjacent hostile zone difficulty on hover. Visual indicator on map.'},
-  {id:'hospital',   label:'Hospital',    cost:8000,  desc:'+3 personnel/min passive recovery from nearby cleared zones (supply line bonus).'},
-  {id:'radiotower', label:'Radio Tower', cost:12000, desc:'Search operations from this zone find 30% more often.'},
+  {id:'watchtower', label:'Watchtower',  cost:5000,  desc:'Reveals adjacent hostile zone difficulty on hover.'},
+  {id:'hospital',   label:'Hospital',    cost:8000,  desc:'+3 personnel/min passive recovery.'},
+  {id:'radiotower', label:'Radio Tower', cost:12000, desc:'Search operations find 30% more often.'},
+  {id:'fortify1',   label:'Reinforced Walls (Tier 1)', cost:20000, desc:'Barricade starts at +25% HP. Zone max personnel +2000.'},
+  {id:'fortify2',   label:'Fortified Compound (Tier 2)',cost:50000, desc:'Barricade starts at +60% HP. Zone max personnel +5000. Requires Tier 1.'},
 ];
+function getFortTierBonus(zoneName){
+  const ups=getZoneUpgrades(zoneName);
+  if(ups.fortify2)return{hpMult:1.6,capBonus:5000};
+  if(ups.fortify1)return{hpMult:1.25,capBonus:2000};
+  return{hpMult:1.0,capBonus:0};
+}
 function getMagUpgrades(){const s=loadSave();return s.magUpgrades||{};}
 function getEffectiveMag(wid){
   const w=WEAPONS[wid]; if(!w)return 0;
@@ -936,7 +974,7 @@ function tickPersonnelDrain() {
       if(Math.abs(intSupply)>=1){
         drainAccum[name+'_supply']-=intSupply;
         const city=CITIES.find(c=>c.name===name);
-        const cap=city?Math.round(1000+city.t*9000):5000;
+        const cap=(()=>{const _c=city?Math.round(1000+city.t*9000):5000;const _zu=getZoneUpgrades(name||'');const _fm=_zu.fortify2?3:(_zu.fortify1?2:1);return Math.round(_c*_fm);})();
         data.personnel=Math.max(0,Math.min(cap,(data.personnel||0)+intSupply));
         supplyChanged=true;
       }
@@ -1017,10 +1055,35 @@ function drawMap(ts){
   const skyBlend=0.35; // how much tod tint shows through
   const skyFill=`rgb(${Math.round(2+tod.skyR*skyBlend)},${Math.round(5+tod.skyG*skyBlend)},${Math.round(8+tod.skyB*skyBlend)})`;
   ctx.fillStyle=skyFill;ctx.fillRect(0,0,W,H);
+  // Night: dim the whole map canvas
+  if(!tod.isDay){
+    const nightAlpha=0.18+tod.nightFrac*0.12;
+    ctx.fillStyle=`rgba(0,0,20,${nightAlpha.toFixed(2)})`;
+    ctx.fillRect(0,0,W,H);
+  }
   ctx.strokeStyle='#060a0d';ctx.lineWidth=1;
   for(let x=0;x<W;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
   for(let y=0;y<H;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
   if(!voronoiCells.length)return;
+
+  // == ROAD NETWORK: draw faint lines between connected cities ==
+  if(delaunay){
+    ctx.strokeStyle='rgba(30,45,25,.25)';ctx.lineWidth=1.2;ctx.setLineDash([8,14]);
+    const drawn=new Set();
+    for(let i=0;i<CITIES.length;i++){
+      for(const ni of delaunay.neighbors(i)){
+        const key=Math.min(i,ni)+','+Math.max(i,ni);
+        if(drawn.has(key))continue;drawn.add(key);
+        const a=CITIES[i],b=CITIES[ni];
+        if(!a||!b)continue;
+        ctx.beginPath();ctx.moveTo(a.px,a.py);ctx.lineTo(b.px,b.py);ctx.stroke();
+      }
+    }
+    ctx.setLineDash([]);
+  }
+
+  // Radio broadcast text
+  drawRadio(ctx);
 
   // Clock update
   const _ch=Math.floor(tod.hour);
@@ -1104,6 +1167,34 @@ function drawMap(ts){
   ctx.restore();
   ctx.strokeStyle='rgba(15,80,38,.2)';ctx.lineWidth=8;ohioPath(ctx);ctx.stroke();
   ctx.strokeStyle='rgba(28,120,58,.62)';ctx.lineWidth=2;ohioPath(ctx);ctx.stroke();
+  // Zone upgrade icons
+  {const _s=loadSave();
+  for(const [zn,zd] of Object.entries(_s.zones||{})){
+    if(zd.status!=='cleared')continue;
+    const _city=CITIES.find(c=>c.name===zn);if(!_city)continue;
+    const ups=zd.upgrades||{};
+    let _ix=_city.px+8;const _iy=_city.py-10;
+    ctx.font=Math.max(8,W*.0065)+'px Oswald,sans-serif';ctx.textAlign='left';
+    if(ups.watchtower){ctx.fillStyle='rgba(180,160,40,.8)';ctx.fillText('[W]',_ix,_iy);_ix+=18;}
+    if(ups.hospital){ctx.fillStyle='rgba(200,60,60,.8)';ctx.fillText('[H]',_ix,_iy);_ix+=18;}
+    if(ups.radiotower){ctx.fillStyle='rgba(60,120,200,.8)';ctx.fillText('[R]',_ix,_iy);_ix+=18;}
+    if(ups.fortify1||ups.fortify2){ctx.fillStyle='rgba(160,100,40,.8)';ctx.fillText(ups.fortify2?'[F2]':'[F1]',_ix,_iy);}
+  }}
+
+  // Upgrade icons on cleared zones
+  {const _us=loadSave();
+  for(let _ui=0;_ui<CITIES.length;_ui++){
+    const _uc=CITIES[_ui];if(zoneStatus(_uc.name)!=='cleared')continue;
+    const _uzd=(_us.zones||{})[_uc.name];if(!_uzd||!_uzd.upgrades)continue;
+    const _uup=_uzd.upgrades;
+    let _ux=_uc.px+8,_uy=_uc.py-14;
+    ctx.font='7px Oswald,sans-serif';ctx.textAlign='left';
+    if(_uup.watchtower){ctx.fillStyle='rgba(200,170,40,.85)';ctx.fillText('[W]',_ux,_uy);_ux+=16;}
+    if(_uup.hospital){ctx.fillStyle='rgba(50,185,80,.85)';ctx.fillText('[H]',_ux,_uy);_ux+=16;}
+    if(_uup.radiotower){ctx.fillStyle='rgba(50,140,210,.85)';ctx.fillText('[R]',_ux,_uy);_ux+=16;}
+    if(_uup.fortify1||_uup.fortify2){ctx.fillStyle='rgba(200,80,50,.85)';ctx.fillText(_uup.fortify2?'[F2]':'[F1]',_ux,_uy);}
+  }}
+
   for(const c of CITIES){const isHov=c===hovCity;if(!isHov&&c.pop<18000)continue;const pinR=isHov?4:Math.max(1.5,1+c.t*2.5);const status=zoneStatus(c.name);let pr=c.r,pg=c.g,pb=c.b;if(status==='cleared'){pr=35;pg=175;pb=75;}ctx.fillStyle=isHov?`rgb(${pr},${pg},${pb})`:`rgba(${pr},${pg},${pb},.8)`;ctx.beginPath();ctx.arc(c.px,c.py,pinR,0,Math.PI*2);ctx.fill();const fs=Math.max(8,Math.min(13,7+c.t*6));ctx.font=`${isHov?fs+1:fs}px 'Oswald',sans-serif`;ctx.textAlign='left';ctx.fillStyle=`rgba(${pr},${pg},${pb},${(isHov?.95:.42+c.t*.35).toFixed(2)})`;ctx.fillText(c.name.toUpperCase(),c.px+pinR+2.5,c.py+3.5);}
   ctx.fillStyle='rgba(0,0,0,.055)';for(let y=0;y<H;y+=3)ctx.fillRect(0,y,W,1);
 }
@@ -1171,8 +1262,10 @@ function initBarricade(){
     [2,-90,22,20,18,3,'#141008'],[24,-92,22,20,18,3,'#161008'],
   ];
   const fortMult=SH.zone?getFortMult(SH.zone.name):1;
+  const _fortTier=SH.zone?getFortTierBonus(SH.zone.name):{hpMult:1.0,capBonus:0};
+  const _ftHpMult=_fortTier.hpMult;
   SH.barBoards=layout.map(([rx,ry,w,h,maxHp,row,col],id)=>{
-    const fm=Math.round(maxHp*fortMult);
+    const fm=Math.round(maxHp*fortMult*_ftHpMult);
     return{rx,ry,w,h,hp:fm,maxHp:fm,row,col,alive:true,crack:0,tilt:(Math.random()-.5)*.05,id};
   });
   SH.fallenBoards=[];
@@ -1333,6 +1426,7 @@ function mkZombie(forceType){
     state:'walk',anim:Math.random()*Math.PI*2,
     groanTimer:2000+Math.random()*6000, // ms until next groan
     isPrank:Math.random()<0.015, // 1.5% chance of prank zombie
+    humorType:(()=>{const r=Math.random();if(r<0.04)return'wall';if(r<0.07)return'backwards';if(r<0.09)return'birthday';return null;})(),
     prankReveal:false,prankTimer:0,phaseOff:Math.random(), // reveal state + look seed
     atkTimer:0,atkRate:(typeRoll==='heavy'?2800:1500)/Math.sqrt(diff),
     dmg,targetBoard:null,dying:0,wobble:(Math.random()-.5)*.12,look,
@@ -1349,8 +1443,28 @@ function fireBullet(){
   const wearFactor=1+SH.wear[SH.activeSlot]*3; // up to 4x recoil at max wear
   const spread=(Math.random()-.5)*w.recoil*2*wearFactor;
   const angle=baseAngle+spread;
-  const _pierce=wid==='sniper'?2:0; // sniper pierces up to 3 zombies (2 extra)
-  SH.bullets.push({x:gx,y:gy,vx:Math.cos(angle)*w.speed,vy:Math.sin(angle)*w.speed,dmg:w.dmg,pierce:_pierce});
+  const _pierce=wid==='sniper'?2:0;
+  // Crossbow: silent, heavy bolt, draw+release sound
+  if(wid==='crossbow'){
+    const _bAngle=baseAngle+(Math.random()-.5)*0.01; // near-zero spread
+    SH.bullets.push({x:gx,y:gy,vx:Math.cos(_bAngle)*w.speed,vy:Math.sin(_bAngle)*w.speed,dmg:w.dmg,pierce:2,isBolt:true});
+    SH.flashTimer=0; // no muzzle flash
+    SH.muzzleAngle=_bAngle;
+    // Draw a bolt spark
+    SH.sparks.push({x:gx+8,y:gy,vx:Math.cos(_bAngle)*60,vy:Math.sin(_bAngle)*60-10,life:1,maxLife:300,col:'rgba(160,140,80,',sz:2,type:'blood'});
+    return; // skip normal flash/shell
+  }
+
+  if(w.pellets){
+    // Shotgun: fire N pellets in a spread cone
+    for(let pi=0;pi<w.pellets;pi++){
+      const pelletSpread=(Math.random()-.5)*w.recoil*6;
+      const pa=angle+pelletSpread;
+      SH.bullets.push({x:gx,y:gy,vx:Math.cos(pa)*w.speed,vy:Math.sin(pa)*w.speed,dmg:w.dmg,pierce:0,isPellet:true});
+    }
+  } else {
+    SH.bullets.push({x:gx,y:gy,vx:Math.cos(angle)*w.speed,vy:Math.sin(angle)*w.speed,dmg:w.dmg,pierce:_pierce});
+  }
   SH.wear[SH.activeSlot]=Math.min(0.85,SH.wear[SH.activeSlot]+0.0008);
   SH.flashTimer=110;SH.muzzleAngle=angle;
   sndShoot(wid);
@@ -1520,7 +1634,25 @@ function updateZombies(dt){
     if(z.state==='dead'){SH.zombies.splice(i,1);continue;}
     if(z.state==='dying'){z.dying+=dt;if(z.dying>(z.isPrank?3800:800))z.state='dead';continue;}
     if(z.state==='walk'){
-      z.x+=z.speed*dt/1000;
+      // Wall zombie: walks, hits an invisible wall mid-field, backs up, tries again (loop)
+      if(z.humorType==='wall'){
+        if(!z.wallX)z.wallX=SH.barricadeX-(180+Math.random()*120);
+        if(!z.wallDir)z.wallDir=1;
+        z.x+=z.speed*z.wallDir*dt/1000;
+        if(z.wallDir===1&&z.x>=z.wallX){z.wallDir=-1;if(!z.wallBounces)z.wallBounces=0;z.wallBounces++;}
+        if(z.wallDir===-1&&z.x<=z.wallX-60){z.wallDir=1;}
+        if(z.wallBounces>=3){z.humorType=null;} // gives up and walks normally after 3 bounces
+      }
+      // Backwards zombie: walks the wrong way briefly before turning around
+      else if(z.humorType==='backwards'){
+        if(!z.backTimer)z.backTimer=2000+Math.random()*2000;
+        z.backTimer-=dt;
+        if(z.backTimer>0){z.x-=z.speed*0.4*dt/1000;} // walks away from barricade
+        else{z.humorType=null;} // gives up, walks normally
+      }
+      else {
+        z.x+=z.speed*dt/1000;
+      }
       // Crawlers hug the ground
       if(z.crawling)z.y=z.groundY+10;
       if(z.x+z.sz*18>=SH.barricadeX){z.state='attack';z.x=SH.barricadeX-z.sz*18;z.targetBoard=selectBoardToAttack();}
@@ -1772,7 +1904,16 @@ function drawShooter(ts){
   }
 
   // == BULLETS ==
-  for(const b of SH.bullets){const ba=Math.atan2(b.vy,b.vx);ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ba);const bg=ctx.createLinearGradient(-14,0,6,0);bg.addColorStop(0,'rgba(255,220,80,0)');bg.addColorStop(1,'rgba(255,240,140,.9)');ctx.fillStyle=bg;ctx.fillRect(-14,-1.5,20,3);ctx.restore();}
+  for(const b of SH.bullets){const ba=Math.atan2(b.vy,b.vx);ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ba);
+    if(b.isBolt){
+      // Dark bolt shaft
+      ctx.fillStyle='rgba(90,70,30,.95)';ctx.fillRect(-18,-1.5,28,3);
+      ctx.fillStyle='rgba(180,160,80,.8)';ctx.fillRect(8,-1,4,2); // tip
+      ctx.fillStyle='rgba(60,50,20,.7)';ctx.fillRect(-20,-2,5,4); // flights
+    } else {
+      const bg=ctx.createLinearGradient(-14,0,6,0);bg.addColorStop(0,'rgba(255,220,80,0)');bg.addColorStop(1,'rgba(255,240,140,.9)');ctx.fillStyle=bg;ctx.fillRect(-14,-1.5,20,3);
+    }
+    ctx.restore();}
 
   // MELEE FLASH
   if(SH.meleeFlash>0){
@@ -2098,6 +2239,23 @@ function drawZombie(ctx, z){
   ctx.fillRect(-9.5*s,-10*s,19*s,6*s);
   // Stray hair bits
   ctx.beginPath();ctx.moveTo(-8*s,-10*s);ctx.lineTo(-12*s,-8*s);ctx.moveTo(6*s,-10*s);ctx.lineTo(10*s,-7*s);ctx.strokeStyle=`rgb(${L.h[0]},${L.h[1]},${L.h[2]})`;ctx.lineWidth=1.8*s;ctx.stroke();
+  // Birthday hat (if birthday zombie)
+  if(z.humorType==='birthday'){
+    ctx.save();
+    // cone
+    ctx.fillStyle='rgba(220,50,180,.9)';
+    ctx.beginPath();ctx.moveTo(-7*s,-10*s);ctx.lineTo(7*s,-10*s);ctx.lineTo(0,-32*s);ctx.closePath();ctx.fill();
+    // stripes
+    ctx.strokeStyle='rgba(255,255,80,.8)';ctx.lineWidth=1.5*s;
+    ctx.beginPath();ctx.moveTo(-5*s,-14*s);ctx.lineTo(0,-32*s);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(3*s,-14*s);ctx.lineTo(0,-32*s);ctx.stroke();
+    // pom pom
+    ctx.fillStyle='rgba(255,255,100,.95)';ctx.beginPath();ctx.arc(0,-33*s,3*s,0,Math.PI*2);ctx.fill();
+    // elastic band
+    ctx.strokeStyle='rgba(180,40,140,.7)';ctx.lineWidth=1*s;
+    ctx.beginPath();ctx.arc(0,-5*s,7*s,0.3,Math.PI-.3);ctx.stroke();
+    ctx.restore();
+  }
   // Eye sockets (dark hollows)
   ctx.fillStyle='rgba(5,2,2,.9)';
   ctx.beginPath();ctx.ellipse(-3.5*s,-1*s,3.2*s,2.5*s,0,0,Math.PI*2);ctx.fill();
@@ -2315,9 +2473,12 @@ function endShooter(won){
     // zoneMax scales 1,000-10,000 with zone population (t=0..1).
     const _tod=getTimeOfDay();
     const PERSONNEL_PER_WIN = Math.round(1200 * (_tod.isDay ? 1.15 : 1.0)); // <- day:+15%
-    const zoneMax        = Math.round(1000 + SH.zone.t * 9000); // <- zone capacity ceiling (1k-10k)
+    const _zoneUpgrades = getZoneUpgrades(SH.zone.name);
+    const _fortressMult = _zoneUpgrades.fortify2?3.0:(_zoneUpgrades.fortify1?2.0:1.0);
+    const zoneMax        = Math.round((1000 + SH.zone.t * 9000) * _fortressMult); // <- zone capacity ceiling
     const prevPersonnel  = (existing.status === 'cleared') ? (existing.personnel || 0) : 0;
-    const newPersonnel   = Math.min(zoneMax, prevPersonnel + PERSONNEL_PER_WIN);
+    const _ftBonus=getFortTierBonus(name).capBonus;
+    const newPersonnel   = Math.min(zoneMax+_ftBonus, prevPersonnel + PERSONNEL_PER_WIN);
 
     // Survivors: named roster, max 10. Only roll on first capture of this zone.
     if (existing.status !== 'cleared') {
@@ -2515,6 +2676,23 @@ function renderInventory(){
       </div>`;
     }).join('')).join('')}`:'';
 
+  // Mission section
+  const rosterFull=Object.values(getSurvivorRoster());
+  const missionHTML=rosterFull.length?`<div class="inv-section-title" style="margin-top:.8rem;">SURVIVOR MISSIONS <span style="font-family:'Special Elite',cursive;font-size:.52rem;color:#2a3020;font-style:italic;">select a survivor then a mission</span></div>
+    ${rosterFull.map(sv=>{
+      const td=getTraitDef(sv.trait);
+      const onM=sv.onMission;
+      if(onM){
+        const remain=Math.max(0,Math.ceil((onM.returnTime-Date.now())/60000));
+        return`<div class="inv-weapon-row"><div class="inv-weapon-name">${sv.name}</div><span style="font-family:'Special Elite',cursive;font-size:.55rem;color:#4a6840;flex:1;">${td.icon} ON MISSION - returns in ~${remain}min</span></div>`;
+      }
+      return`<div class="inv-weapon-row">
+        <div class="inv-weapon-name">${sv.name} ${td.icon}</div>
+        <div style="display:flex;gap:4px;">${SURVIVOR_MISSIONS.map(m=>`<button class="inv-equip-btn" onclick="sendOnMission('${sv.id}','${m.id}')" title="${m.desc}">${m.label}</button>`).join('')}</div>
+      </div>`;
+    }).join('')}`:
+    `<div style="font-family:'Special Elite',cursive;font-size:.6rem;color:#1e2818;letter-spacing:.1em;margin-top:.8rem;">No named survivors yet.</div>`;
+
   const arsenalHTML=`<div class="inv-section-title" style="margin-top:.8rem;">ARSENAL</div>
     ${(inv.ownedWeapons||['pistol']).map(wid=>{
       const w=WEAPONS[wid];if(!w)return'';
@@ -2531,9 +2709,11 @@ function renderInventory(){
   const zd=getZoneData(SH.zone?SH.zone.name:'');
   const fortHTML=''; // Fort section injected below
 
-  body.innerHTML=slotHTML+survHTML+magUpHTML+assignHTML+upgradeHTML+arsenalHTML;
+  body.innerHTML=slotHTML+survHTML+missionHTML+magUpHTML+assignHTML+upgradeHTML+arsenalHTML;
 }
 function buyZoneUpgrade(zoneName, upId){
+  if(upId==='fortify2'&&!hasUpgrade(zoneName,'fortify1')){return;} // requires tier 1
+
   if(hasUpgrade(zoneName, upId))return;
   const up=ZONE_UPGRADES.find(u=>u.id===upId);if(!up)return;
   const s=loadSave();
@@ -2845,6 +3025,7 @@ function showSearchNotify(){
   if(!s.pendingSearchResults||!s.pendingSearchResults.length)return;
   const el=document.getElementById('srch-notify-content');
   el.innerHTML=s.pendingSearchResults.map(r=>{
+    if(r.missionText){const col=r.lost?'#8a2020':'#3a8040';return`<div class="sn-result ${r.lost?'fight-lose':'fight-win'}">? <b>${r.label}</b> - <span style="color:${col}">${r.missionText}</span></div>`;}
     if(r.nothing)return`<div class="sn-result nothing">? <b>${r.label}</b> - Nothing found.</div>`;
     const parts=[];
     if(r.gains.funds)parts.push(`<b>$${r.gains.funds.toLocaleString()}</b>`);
@@ -2915,6 +3096,139 @@ function commitSearches(){
   goTo('map');
 }
 
+// == SURVIVOR MISSIONS ==
+const SURVIVOR_MISSIONS=[
+  {id:'scavenge',  label:'Scavenge Run',    duration:30, icon:'[S]',
+   desc:'Gone 30 min. Returns with ammo boxes or funds.',
+   reward:(sv)=>{
+     const roll=Math.random();
+     if(roll<0.15)return{type:'none',text:'Found nothing and returned safely.'};
+     if(roll<0.5)return{type:'ammo',amount:4+Math.floor(Math.random()*6),text:`Found ${4+Math.floor(Math.random()*6)} ammo boxes.`};
+     return{type:'funds',amount:800+Math.floor(Math.random()*1200),text:`Recovered $${(800+Math.floor(Math.random()*1200)).toLocaleString()}.`};
+   },
+   riskOfLoss:0.08},
+  {id:'recon',     label:'Recon Mission',   duration:45, icon:'[R]',
+   desc:'Gone 45 min. Maps nearby zones, reveals difficulty on all adjacent zones for 2 hours.',
+   reward:(sv)=>{return{type:'recon',text:'Adjacent zone difficulties revealed for 2 hours.'};},
+   riskOfLoss:0.12},
+  {id:'rescue',    label:'Rescue Op',       duration:60, icon:'[X]',
+   desc:'Gone 60 min. Attempts to bring back another survivor. High risk.',
+   reward:(sv)=>{
+     if(Math.random()<0.35)return{type:'survivor',text:'Rescued a new survivor!'};
+     return{type:'none',text:'No survivors found. Made it back safely.'};
+   },
+   riskOfLoss:0.22},
+];
+function getSurvivorMissions(){const s=loadSave();return s.survivorMissions||{};}
+function saveSurvivorMissions(m){const s=loadSave();s.survivorMissions=m;writeSave(s);}
+
+function sendOnMission(svId, missionId){
+  const mission=SURVIVOR_MISSIONS.find(m=>m.id===missionId);if(!mission)return;
+  const s=loadSave();
+  const roster=s.survivorRoster||{};
+  if(!roster[svId])return;
+  if(roster[svId].onMission)return; // already out
+  const returnTime=Date.now()+mission.duration*60*1000;
+  roster[svId].onMission={missionId,returnTime,sent:Date.now()};
+  s.survivorRoster=roster;
+  writeSave(s);
+}
+
+function checkMissionReturns(){
+  const s=loadSave();
+  const roster=s.survivorRoster||{};
+  const now=Date.now();
+  let changed=false;
+  const results=[];
+  for(const [id,sv] of Object.entries(roster)){
+    if(!sv.onMission)continue;
+    if(now<sv.onMission.returnTime)continue;
+    // Mission complete
+    const mission=SURVIVOR_MISSIONS.find(m=>m.id===sv.onMission.missionId);
+    if(!mission){delete roster[id].onMission;changed=true;continue;}
+    // Risk of loss
+    if(Math.random()<mission.riskOfLoss){
+      results.push({name:sv.name,lost:true,text:`${sv.name} did not return.`});
+      delete roster[id];
+      s.survivors=Math.max(0,(s.survivors||0)-1);
+    } else {
+      const reward=mission.reward(sv);
+      // Apply reward
+      if(reward.type==='ammo'){const inv=s.inventory||{};inv.ammoBoxes=(inv.ammoBoxes||0)+(reward.amount||4);s.inventory=inv;}
+      else if(reward.type==='funds'){s.funds=(s.funds||0)+(reward.amount||500);}
+      else if(reward.type==='survivor'){
+        const slotsLeft=Math.max(0,10-Object.keys(roster).length);
+        if(slotsLeft>0){const newSv=generateSurvivorCard();roster[newSv.id]=newSv;s.survivors=(s.survivors||0)+1;}
+      }
+      results.push({name:sv.name,lost:false,text:`${sv.name} returned: ${reward.text}`});
+      delete roster[id].onMission;
+    }
+    changed=true;
+  }
+  if(changed){s.survivorRoster=roster;writeSave(s);}
+  return results;
+}
+
+// Check missions on map entry
+function checkAndShowMissionResults(){
+  const results=checkMissionReturns();
+  if(!results.length)return;
+  // Append to search notify or show separately
+  const s=loadSave();
+  if(!s.pendingSearchResults)s.pendingSearchResults=[];
+  for(const r of results){
+    s.pendingSearchResults.unshift({type:'mission',label:r.name,gains:{},nothing:false,missionText:r.text,lost:r.lost});
+  }
+  writeSave(s);
+}
+
+// == RADIO BROADCASTS ==
+const RADIO_MESSAGES=[
+  "...anyone on 82.4, we have food and medicine at the Muskingum fairgrounds, day 14...",
+  "...Columbus perimeter is holding. Repeat, the east wall is HOLDING. God bless...",
+  "...this is FEMA Region V emergency broadcast. Shelter in place. Do not travel at night...",
+  "...looking for a Dr. Patricia Osei, last seen at Akron General. If you hear this, your kids are safe...",
+  "...fuel depot at mile marker 44 on I-71. Unguarded. Come fast...",
+  "...singing into this old CB just to hear my own voice. Day 41. Still here. Still fighting...",
+  "...DO NOT approach the lake. I repeat, stay away from Lake Erie. Something in the water...",
+  "...three survivors, two kids, one dog. Holding at the Circleville library. Supplies for maybe a week...",
+  "...the National Guard abandoned the Toledo checkpoint at 0300. We're on our own now...",
+  "...if anyone finds a red pickup truck with Indiana plates, the keys are under the seat. Take it...",
+  "...I hear them every night but they can't get through the barn doors. I think we're okay. I think...",
+  "...classified: Operation Blackwood has been authorized. God help us all...",
+  "...Zanesville bridge is clear. Repeat, the Zanesville bridge is CLEAR and PASSABLE...",
+  "...happy birthday to me... *static* ...happy birthday to me...",
+  "...this is Dr. Chen from OSU Medical. We may have found something. Come to the research building. Come soon.",
+];
+let _radioTimer=0;
+let _radioMsg=null;
+let _radioFade=0;
+
+function tickRadio(dt){
+  if(appState!=='map')return;
+  _radioTimer=(_radioTimer||0)-dt;
+  if(_radioTimer<=0){
+    _radioMsg=RADIO_MESSAGES[Math.floor(Math.random()*RADIO_MESSAGES.length)];
+    _radioFade=1.0;
+    _radioTimer=25000+Math.random()*40000; // every 25-65 seconds
+  }
+  if(_radioFade>0){
+    _radioFade=Math.max(0,_radioFade-dt/4000); // fade over 4 seconds
+  }
+}
+
+function drawRadio(ctx){
+  if(!_radioMsg||_radioFade<=0)return;
+  const alpha=Math.min(1,_radioFade*3); // fast fade in, slow fade out
+  ctx.save();
+  ctx.globalAlpha=alpha*0.75;
+  ctx.font=`italic ${Math.max(10,W*.009)}px 'Special Elite',cursive`;
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(100,160,80,1)';
+  ctx.fillText('[ '+_radioMsg+' ]',W/2,H-62);
+  ctx.restore();
+}
+
 // == ZONE EVENTS ==
 const ZONE_EVENTS=[
   {id:'distress',  label:'DISTRESS SIGNAL',  col:'#c8a030', desc:'Survivors trapped nearby. Fight cleared zone again for guaranteed survivor.',
@@ -2968,6 +3282,56 @@ function acknowledgeZoneEvent(){
   if(el._pendingEffect)el._pendingEffect();
   el.style.display='none';
   el._pendingEffect=null;
+}
+
+// == TUTORIAL ==
+const TUTORIAL_STEPS=[
+  {screen:'map',   text:'Welcome to UNDEAD INC. This is the Ohio map. Click any zone to fight for it. Start with a low-difficulty zone near the center.',  pos:'center'},
+  {screen:'map',   text:'The SHOP sells weapons, ammo, and equipment. The INVENTORY lets you equip weapons and deploy survivors into fights.',              pos:'center'},
+  {screen:'map',   text:'SEARCH lets you send parties to scavenge. Results arrive after your next fight. Personnel drain over time - keep fighting!',       pos:'center'},
+  {screen:'shooter',text:'Hold left mouse button (or tap) to aim and fire. R to reload. G to throw a grenade. M to melee when zombies get close.',         pos:'center'},
+  {screen:'shooter',text:'Watch your barricade HP at the top. Zombies attack the boards - if all boards fall, you lose the zone. Headshots deal full damage!',pos:'center'},
+];
+let _tutStep=0;
+let _tutDone=false;
+function initTutorial(){
+  const s=loadSave();
+  if(s.tutorialDone){_tutDone=true;return;}
+  _tutStep=0;_tutDone=false;
+  showTutorialStep();
+}
+function showTutorialStep(){
+  if(_tutDone)return;
+  const step=TUTORIAL_STEPS[_tutStep];
+  if(!step)return;
+  const el=document.getElementById('tut-box');
+  const txt=document.getElementById('tut-text');
+  const prog=document.getElementById('tut-prog');
+  if(!el)return;
+  txt.textContent=step.text;
+  prog.textContent=(_tutStep+1)+' / '+TUTORIAL_STEPS.length;
+  el.style.display='flex';
+}
+function advanceTutorial(){
+  _tutStep++;
+  if(_tutStep>=TUTORIAL_STEPS.length){
+    document.getElementById('tut-box').style.display='none';
+    _tutDone=true;
+    const s=loadSave();s.tutorialDone=true;writeSave(s);
+    return;
+  }
+  // Hide if next step is for a different screen - will show on arrival
+  const nextStep=TUTORIAL_STEPS[_tutStep];
+  if(nextStep.screen!==appState){
+    document.getElementById('tut-box').style.display='none';
+  } else {
+    showTutorialStep();
+  }
+}
+function checkTutorialForScreen(screen){
+  if(_tutDone)return;
+  const step=TUTORIAL_STEPS[_tutStep];
+  if(step&&step.screen===screen)showTutorialStep();
 }
 
 // == SAVE EXPORT / IMPORT ==
@@ -3039,8 +3403,8 @@ function goTo(newState){
   hovCity=null;
   if(newState==='menu'){document.getElementById('s-menu').classList.remove('off');bgC.style.opacity='1';animC.style.opacity='1';document.getElementById('overlay').style.opacity='1';}
   else if(newState==='mode'){document.getElementById('s-mode').classList.remove('off');bgC.style.opacity='1';animC.style.opacity='1';document.getElementById('overlay').style.opacity='1';}
-  else if(newState==='map'){document.getElementById('s-map').classList.remove('off');const _mc=document.getElementById('map-ctrl');_mc.style.display='flex';_mc.style.pointerEvents='all';document.getElementById('map-clock').style.display='block';bakeProjections();mapC.style.opacity='1';updateMapStats();setTimeout(showSearchNotify,350);}
-  else if(newState==='shooter'){document.getElementById('s-shooter').classList.remove('off');shC.style.opacity='1';shC.style.pointerEvents='all';const _spb=document.getElementById('sh-pause-btn');if(_spb)_spb.style.display='flex';}
+  else if(newState==='map'){document.getElementById('s-map').classList.remove('off');const _mc=document.getElementById('map-ctrl');_mc.style.display='flex';_mc.style.pointerEvents='all';document.getElementById('map-clock').style.display='block';bakeProjections();mapC.style.opacity='1';updateMapStats();setTimeout(()=>{checkAndShowMissionResults();setTimeout(showSearchNotify,350);},100);setTimeout(()=>checkTutorialForScreen('map'),800);}
+  else if(newState==='shooter'){document.getElementById('s-shooter').classList.remove('off');shC.style.opacity='1';shC.style.pointerEvents='all';const _spb=document.getElementById('sh-pause-btn');if(_spb)_spb.style.display='flex';setTimeout(()=>checkTutorialForScreen('shooter'),1200);}
   else if(newState==='shop'){document.getElementById('s-shop').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderShop();}
   else if(newState==='inventory'){document.getElementById('s-inv').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';renderInventory();}
   else if(newState==='search'){document.getElementById('s-search').classList.remove('off');bgC.style.opacity='0';animC.style.opacity='0';document.getElementById('overlay').style.opacity='0';mapC.style.opacity='0';srchAlloc={};renderSearchScreen();}
@@ -3155,7 +3519,7 @@ const _save=loadSave();if(Object.keys(_save.zones||{}).length||_save.funds||_sav
 // == MAIN LOOP ==
 function loop(ts){
   const dt=SH.paused?0:Math.min(ts-lastTs,50);lastTs=ts;
-  if(appState==='map')drawMap(ts);
+  if(appState==='map'){drawMap(ts);tickRadio(dt);}
   else if(appState==='shooter'){if(!SH.paused){updateShooter(dt);drawShooter(ts);}updateShooterHUD();}
   else{stepFlicker(dt);stepPtcls();drawOfficeAnim();}
   requestAnimationFrame(loop);
@@ -3167,6 +3531,7 @@ document.addEventListener('touchstart',()=>{try{if(SND.ctx&&SND.ctx.state==='sus
 resize();buildBg();initPtcls();if(appState==='map')bakeProjections();if(appState==='shooter'){SH.groundY=H*.74;SH.barricadeX=W*.68;SH.playerX=SH.barricadeX+16;SH.playerY=SH.groundY;}},150);});
 resize();buildBg();initPtcls();
 requestAnimationFrame(ts=>{lastTs=ts;loop(ts);});
+initTutorial();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
